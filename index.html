@@ -8,7 +8,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500&family=Space+Mono:wght@400&display=swap" rel="stylesheet">
 
   <style>
-    /* 🎨 1. VARIABLE: ตั้งค่าหลัก */
     :root {
       --bg: #0a0a0a;
       --surface: #111111;
@@ -30,55 +29,48 @@
       display: flex; align-items: center; justify-content: space-between;
     }
     .logo { font-family: 'Bebas Neue', sans-serif; font-size: 24px; letter-spacing: 3px; color: var(--accent); text-decoration: none; }
+    
+    /* เมนู Work & Contact */
     nav { display: flex; gap: 24px; }
     nav a { color: var(--muted); text-decoration: none; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; transition: var(--speed); }
     nav a:hover { color: var(--text); }
 
-    /* ── FILTER SECTION ── */
+    /* ── FILTER SECTION (ID: work) ── */
     .filter-section { padding: 24px 32px 12px; position: sticky; top: 60px; z-index: 90; background: var(--bg); border-bottom: 1px solid var(--border); }
     .filter-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
     .filter-label { font-family: 'Space Mono', monospace; font-size: 9px; color: var(--muted); min-width: 60px; }
     .pill { padding: 6px 14px; border-radius: 4px; border: 1px solid var(--border); background: transparent; color: var(--muted); font-size: 11px; cursor: pointer; transition: all var(--speed); text-transform: uppercase; }
     .pill.active { background: var(--text); color: #000; border-color: var(--text); }
 
-    /* ── GRID: ปรับให้รองรับการ์ดหลายขนาด ── */
+    /* ── GRID ── */
     .grid-container { 
       padding: 32px; display: grid; gap: 24px;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); /* เพิ่มความกว้างขั้นต่ำให้การ์ดดูเต็มขึ้น */
-      align-items: start; /* สำคัญ: ทำให้การ์ดไม่ยืดความสูงตามกัน */
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); 
+      align-items: start;
     }
-    
-    .card { 
-      background: var(--surface); border-radius: 12px; overflow: hidden;
-      cursor: pointer; transition: opacity var(--speed); opacity: 1;
-      display: flex; flex-direction: column;
-    }
+    .card { background: var(--surface); border-radius: 12px; overflow: hidden; cursor: pointer; transition: opacity var(--speed); display: flex; flex-direction: column; }
     .card:hover { opacity: 0.7; } 
-    .card.hidden { display: none; }
-
-    /* ปรับ Thumb ให้พอดีกับสัดส่วนงาน */
     .card-thumb { width: 100%; aspect-ratio: 3/4; overflow: hidden; background: #151515; }
-    .card.is-video .card-thumb { aspect-ratio: 16/9; } /* วิดีโอใช้สัดส่วน 16:9 เพื่อลดพื้นที่ว่างด้านล่าง */
+    .card.is-video .card-thumb { aspect-ratio: 16/9; } 
     .card-thumb img { width: 100%; height: 100%; object-fit: cover; }
-
-    .card-body { padding: 20px; flex-grow: 0; } /* กระชับพื้นที่ Body */
-    .card-title { font-size: 15px; font-weight: 500; margin-bottom: 12px; letter-spacing: 0.3px; }
+    .card-body { padding: 20px; }
+    .card-title { font-size: 15px; font-weight: 500; margin-bottom: 12px; }
     .tag { font-size: 9px; padding: 3px 8px; border-radius: 4px; background: rgba(255,255,255,0.06); color: var(--muted); text-transform: uppercase; margin-right: 6px; }
 
-    /* ── MODAL: ขนาดวิดีโอ 800px พอดีจอ ── */
+    /* ── MODAL (เลื่อนดูรูปได้) ── */
     .modal { 
-      position: fixed; inset: 0; background: rgba(0,0,0,0.97); z-index: 1000; 
-      display: none; align-items: center; justify-content: center; padding: 20px; 
+      position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 1000; 
+      display: none; justify-content: center; overflow-y: auto; padding: 60px 20px; 
       opacity: 0; transition: opacity var(--speed);
     }
     .modal.active { display: flex; opacity: 1; }
-    .modal-close { position: fixed; top: 25px; right: 30px; font-size: 28px; color: white; cursor: pointer; z-index: 1010; }
-    .modal-content { width: 100%; max-width: 800px; display: flex; flex-direction: column; }
+    .modal-close { position: fixed; top: 20px; right: 30px; font-size: 32px; color: white; cursor: pointer; z-index: 1010; }
+    .modal-content { width: 100%; max-width: 800px; display: flex; flex-direction: column; gap: 15px; height: fit-content; }
+    .modal-content img { width: 100%; border-radius: 4px; display: block; }
     .video-container { position: relative; width: 100%; padding-bottom: 56.25%; background: #000; border-radius: 4px; overflow: hidden; }
     .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
-    .modal-content img { width: 100%; border-radius: 4px; margin-bottom: 10px; }
 
-    /* ── CONTACT ── */
+    /* ── CONTACT (ID: contact) ── */
     .contact-footer { padding: 120px 32px; text-align: center; border-top: 1px solid var(--border); }
     .contact-footer h2 { font-family: 'Bebas Neue', sans-serif; font-size: 40px; letter-spacing: 5px; margin-bottom: 30px; color: var(--accent); }
     .contact-links { display: flex; justify-content: center; gap: 40px; flex-wrap: wrap; }
@@ -132,7 +124,6 @@
   </section>
 
   <script>
-    /* 📁 [DATABASE]: แก้ไขงานที่นี่ */
     const projects = [
       { id: 1, title: "HAAB 2025 Wrapped Collection", roles: ["Photographer"], type: "Product Photography", folder: "HAAB-2025-wrapped-collection", totalImages: 4 },
       { id: 2, title: "HAAB Meovv", roles: ["Photographer"], type: "Product Photography", folder: "HAAB-Meovv", totalImages: 4 },
@@ -179,7 +170,7 @@
         const rMatch = sRole.includes('all') || c.dataset.roles.split(',').some(r => sRole.includes(r));
         const tMatch = sType.includes('all') || sType.includes(c.dataset.type);
         const isVisible = rMatch && tMatch;
-        c.style.display = isVisible ? 'flex' : 'none'; // ใช้ display แทน class hidden เพื่อความแม่นยำ
+        c.style.display = isVisible ? 'flex' : 'none';
         if (isVisible) count++;
       });
       document.getElementById('visibleCount').textContent = count;
