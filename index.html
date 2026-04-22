@@ -40,17 +40,22 @@
   .filter-label { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--muted); min-width: 80px; }
   .filter-pills { display: flex; gap: 7px; flex-wrap: wrap; }
   .pill { padding: 6px 14px; border-radius: 100px; border: 1px solid var(--border); background: transparent; color: var(--muted); font-size: 12px; cursor: pointer; transition: all .2s; }
-  .pill:hover { border-color: #444; color: var(--text); }
-  .pill.active-role { background: var(--accent); color: #0a0a0a; font-weight: 500; }
-  .pill.active-type { background: var(--pill-active-type); color: #0a0a0a; font-weight: 500; }
+  
+  /* สีปุ่มเวลา Active */
+  .pill.active-role { background: var(--accent) !important; color: #0a0a0a !important; border-color: var(--accent) !important; font-weight: 600; }
+  .pill.active-type { background: var(--pill-active-type) !important; color: #0a0a0a !important; border-color: var(--pill-active-type) !important; font-weight: 600; }
 
   /* ── GRID ── */
   .grid-container { padding: 28px 32px 60px; columns: 5; column-gap: var(--gap); }
   @media (max-width: 1100px) { .grid-container { columns: 3; } }
   @media (max-width: 768px) { .grid-container { columns: 2; padding: 16px; } nav { display: none; } }
 
-  .card { break-inside: avoid; margin-bottom: var(--gap); border-radius: 12px; overflow: hidden; background: var(--surface); cursor: pointer; position: relative; transition: transform .25s ease; border: 1px solid transparent; }
+  .card { break-inside: avoid; margin-bottom: var(--gap); border-radius: 12px; overflow: hidden; background: var(--surface); cursor: pointer; position: relative; transition: transform .25s ease; border: 1px solid transparent; display: block; }
   .card:hover { transform: translateY(-4px); border-color: #333; }
+  
+  /* CSS สำหรับซ่อนการ์ด */
+  .card.hidden { display: none !important; }
+
   .card-thumb { width: 100%; position: relative; overflow: hidden; background: #1a1a1a; }
   .card-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .5s ease; }
   .card:hover .card-thumb img { transform: scale(1.05); }
@@ -58,22 +63,12 @@
   .card-title { font-size: 13px; font-weight: 500; margin-bottom: 8px; }
   .tag { font-size: 9px; padding: 2px 8px; border-radius: 100px; border: 1px solid rgba(255,255,255,0.1); color: var(--muted); text-transform: uppercase; margin-right: 4px; }
 
-  /* ── MODAL (Updated for Centering) ── */
-  .modal {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000;
-    display: none; flex-direction: column; align-items: center; 
-    padding: 60px 20px; overflow-y: auto;
-  }
+  /* ── MODAL ── */
+  .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; display: none; flex-direction: column; align-items: center; padding: 60px 20px; overflow-y: auto; }
   .modal.active { display: flex; }
   .modal-close { position: fixed; top: 20px; right: 30px; font-size: 30px; color: white; cursor: pointer; z-index: 1001; }
-  
-  .modal-content { 
-    max-width: 900px; width: 100%; 
-    display: flex; flex-direction: column; gap: 20px; 
-    margin: auto 0; /* จัดเนื้อหาให้อยู่กลางจอแนวตั้งอัตโนมัติ */
-  }
+  .modal-content { max-width: 900px; width: 100%; display: flex; flex-direction: column; gap: 20px; margin: auto 0; }
   .modal-content img { width: 100%; border-radius: 4px; }
-  
   .video-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; background: #000; border-radius: 8px; }
   .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
 
@@ -91,7 +86,9 @@
 <header>
   <a href="#" class="logo">wp.047</a>
   <nav><a href="#work">Work</a><a href="#contact">Contact</a></nav>
-  <div class="header-actions"><div class="count-badge"><span id="visibleCount">0</span> projects</div></div>
+  <div class="header-actions">
+    <div class="count-badge"><span id="visibleCount">0</span> projects</div>
+  </div>
 </header>
 
 <div class="filter-section" id="work">
@@ -130,6 +127,7 @@
 </section>
 
 <script>
+// ── DATA ──
 const projects = [
   {
     id: 1, title: "HAAB 2025 Wrapped Collection",
@@ -144,8 +142,7 @@ const projects = [
   {
     id: 3, title: "CALLADAY - Meant to Be (Official MV)",
     role: "Director, Colorist", type: "Music Video",
-    youtubeID: "J3WRBmX2RV0", // รหัสวิดีโอที่คุณส่งมา
-    h: 300
+    youtubeID: "J3WRBmX2RV0", h: 300
   }
 ];
 
@@ -154,14 +151,14 @@ let activeType = "all";
 
 function renderCards() {
   const grid = document.getElementById('grid');
-  if (!grid) return;
   grid.innerHTML = '';
 
   projects.forEach((p) => {
     const card = document.createElement('div');
     card.className = 'card';
-    card.dataset.role = p.role;
-    card.dataset.type = p.type;
+    // เก็บค่า Role และ Type ไว้ใน Dataset เพื่อใช้กรอง
+    card.setAttribute('data-role', p.role);
+    card.setAttribute('data-type', p.type);
     card.onclick = () => openProject(p);
     
     const coverSrc = p.youtubeID 
@@ -179,8 +176,52 @@ function renderCards() {
     `;
     grid.appendChild(card);
   });
-  applyFilter();
+  applyFilter(); // กรองครั้งแรกเมื่อโหลดเสร็จ
 }
+
+function applyFilter() {
+  const cards = document.querySelectorAll('.card');
+  let visible = 0;
+
+  cards.forEach(card => {
+    const cardRole = card.getAttribute('data-role');
+    const cardType = card.getAttribute('data-type');
+
+    // ตรรกะการกรอง: ต้องตรงทั้ง Role และ Type (ถ้าไม่ได้เลือก All)
+    const roleMatch = (activeRole === "all") || cardRole.includes(activeRole);
+    const typeMatch = (activeType === "all") || cardType.includes(activeType);
+
+    if (roleMatch && typeMatch) {
+      card.classList.remove('hidden');
+      visible++;
+    } else {
+      card.classList.add('hidden');
+    }
+  });
+
+  document.getElementById('visibleCount').textContent = visible;
+}
+
+// ผูกเหตุการณ์คลิกให้ปุ่ม Pill ทั้งหมด
+document.querySelectorAll('.pill').forEach(pill => {
+  pill.addEventListener('click', function() {
+    const group = this.getAttribute('data-group');
+    const value = this.getAttribute('data-value');
+
+    if (group === 'role') {
+      activeRole = value;
+      // ลบ Class Active เก่าออกและใส่ให้ปุ่มที่เพิ่งกด
+      document.querySelectorAll('#roleFilters .pill').forEach(p => p.classList.remove('active-role'));
+      this.classList.add('active-role');
+    } else {
+      activeType = value;
+      document.querySelectorAll('#typeFilters .pill').forEach(p => p.classList.remove('active-type'));
+      this.classList.add('active-type');
+    }
+
+    applyFilter(); // เรียกใช้ฟังก์ชันกรองทันที
+  });
+});
 
 function openProject(p) {
   const modal = document.getElementById('projectModal');
@@ -208,43 +249,13 @@ function openProject(p) {
 
 function closeModal() {
   const modal = document.getElementById('projectModal');
-  const content = document.getElementById('modalContent');
-  content.innerHTML = ''; 
+  document.getElementById('modalContent').innerHTML = ''; 
   modal.classList.remove('active');
   document.body.style.overflow = 'auto';
 }
 
-function applyFilter() {
-  const cards = document.querySelectorAll('.card');
-  let visible = 0;
-  cards.forEach(card => {
-    const roleMatch = activeRole === 'all' || card.dataset.role.includes(activeRole);
-    const typeMatch = activeType === 'all' || card.dataset.type === activeType;
-    const show = roleMatch && typeMatch;
-    card.classList.toggle('hidden', !show);
-    if (show) visible++;
-  });
-  document.getElementById('visibleCount').textContent = visible;
-}
-
-document.querySelectorAll('.pill').forEach(pill => {
-  pill.addEventListener('click', () => {
-    const group = pill.dataset.group;
-    const value = pill.dataset.value;
-    if (group === 'role') {
-      activeRole = value;
-      document.querySelectorAll('[data-group="role"]').forEach(p => p.classList.remove('active-role'));
-      pill.classList.add('active-role');
-    } else {
-      activeType = value;
-      document.querySelectorAll('[data-group="type"]').forEach(p => p.classList.remove('active-type'));
-      pill.classList.add('active-type');
-    }
-    applyFilter();
-  });
-});
-
-window.onload = renderCards;
+// รันฟังก์ชันสร้างการ์ดเมื่อหน้าเว็บโหลดเสร็จ
+window.addEventListener('DOMContentLoaded', renderCards);
 </script>
 </body>
 </html>
