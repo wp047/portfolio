@@ -8,86 +8,90 @@
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500&family=Space+Mono:wght@400&display=swap" rel="stylesheet">
 
   <style>
-    /* 🎨 1. ตั้งค่าสีและตัวแปรหลัก (แก้ตรงนี้เพื่อเปลี่ยนธีม) */
+    /* 🎨 1. VARIABLE: ส่วนตั้งค่าหลัก (สี, ระยะห่าง, ความเร็ว) */
     :root {
       --bg: #0a0a0a;
       --surface: #111111;
       --border: #222222;
       --text: #f0ede8;
       --muted: #666;
-      --accent: #e8d5b0; /* สีทองหลัก */
-      --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      --accent: #e8d5b0;
+      --speed: 0.3s; /* ความเร็วของ Motion (ปรับให้เร็วขึ้นเพื่อความ Minimal) */
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; overflow-x: hidden; line-height: 1.5; }
+    body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; -webkit-font-smoothing: antialiased; }
 
     /* ── HEADER ── */
     header {
       position: sticky; top: 0; z-index: 100; height: 60px; padding: 0 32px;
-      background: rgba(10,10,10,0.85); backdrop-filter: blur(20px);
+      background: rgba(10,10,10,0.8); backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--border);
       display: flex; align-items: center; justify-content: space-between;
     }
-    .logo { font-family: 'Bebas Neue', sans-serif; font-size: 26px; letter-spacing: 4px; color: var(--accent); text-decoration: none; }
+    .logo { font-family: 'Bebas Neue', sans-serif; font-size: 24px; letter-spacing: 3px; color: var(--accent); text-decoration: none; }
     .count-badge { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--muted); border: 1px solid var(--border); padding: 4px 12px; border-radius: 20px; }
 
-    /* ── FILTER SECTION (ส่วนปุ่มกด) ── */
+    /* ── FILTER: ส่วนปุ่มกด (Minimal Style) ── */
     .filter-section { padding: 24px 32px 12px; position: sticky; top: 60px; z-index: 90; background: var(--bg); border-bottom: 1px solid var(--border); }
     .filter-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
-    .filter-label { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--muted); min-width: 70px; }
-    .filter-pills { display: flex; gap: 8px; flex-wrap: wrap; }
+    .filter-label { font-family: 'Space Mono', monospace; font-size: 9px; color: var(--muted); min-width: 60px; letter-spacing: 1px; }
     
     .pill { 
-      padding: 6px 16px; border-radius: 100px; border: 1px solid var(--border); 
+      padding: 6px 14px; border-radius: 4px; border: 1px solid var(--border); 
       background: transparent; color: var(--muted); font-size: 11px; cursor: pointer; 
-      transition: var(--transition); text-transform: uppercase;
+      transition: all var(--speed); text-transform: uppercase;
     }
-    .pill:hover { border-color: #555; color: var(--text); }
+    .pill:hover { color: var(--text); border-color: #444; }
     .pill.active { background: var(--text); color: #000; border-color: var(--text); }
 
-    /* ── GRID & CARDS (ส่วนแสดงผลงาน) ── */
+    /* ── GRID: การแสดงผลการ์ด ── */
     .grid-container { 
-      padding: 32px; display: grid; gap: 16px;
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); 
+      padding: 32px; display: grid; gap: 20px;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
     }
     
     .card { 
-      background: var(--surface); border-radius: 12px; overflow: hidden;
-      cursor: pointer; transition: var(--transition); opacity: 1; transform: scale(1);
+      background: var(--surface); border-radius: 8px; overflow: hidden;
+      cursor: pointer; transition: opacity var(--speed), transform var(--speed);
+      opacity: 1;
     }
-    .card:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
-    .card.hidden { opacity: 0; transform: scale(0.9); pointer-events: none; position: absolute; visibility: hidden; }
+    .card:hover { opacity: 0.85; } /* Minimal hover แค่จางลงเล็กน้อย */
+    .card.hidden { opacity: 0; pointer-events: none; position: absolute; visibility: hidden; }
 
-    /* จัดสัดส่วนภาพหน้าปก */
-    .card-thumb { width: 100%; aspect-ratio: 3/4; overflow: hidden; background: #1a1a1a; }
-    .card.is-video .card-thumb { aspect-ratio: 16/10; } /* ถ้าเป็นวิดีโอให้เป็นแนวนอน */
-    .card-thumb img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.8s ease; }
-    .card:hover .card-thumb img { transform: scale(1.1); }
+    /* ปรับสัดส่วนภาพหน้าปก */
+    .card-thumb { width: 100%; aspect-ratio: 3/4; overflow: hidden; background: #151515; }
+    .card.is-video .card-thumb { aspect-ratio: 16/10; } 
+    .card-thumb img { width: 100%; height: 100%; object-fit: cover; }
 
     .card-body { padding: 16px; }
-    .card-title { font-size: 13px; font-weight: 500; margin-bottom: 10px; }
-    .tag { font-size: 8px; padding: 3px 8px; border-radius: 100px; background: rgba(255,255,255,0.05); color: var(--muted); text-transform: uppercase; margin-right: 4px; }
+    .card-title { font-size: 13px; font-weight: 500; margin-bottom: 8px; letter-spacing: 0.5px; }
+    .tag { font-size: 8px; padding: 2px 6px; border-radius: 2px; background: rgba(255,255,255,0.05); color: var(--muted); text-transform: uppercase; margin-right: 4px; }
 
-    /* ── MODAL (หน้าจอแสดงผลงาน) ── */
+    /* ── MODAL: หน้าจอวิดีโอ/รูปภาพ (Centered & Sized) ── */
     .modal { 
-      position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 1000; 
+      position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; 
       display: none; align-items: center; justify-content: center; padding: 40px; 
-      opacity: 0; transition: opacity 0.4s ease; 
+      opacity: 0; transition: opacity var(--speed);
     }
     .modal.active { display: flex; opacity: 1; }
-    .modal-close { position: fixed; top: 30px; right: 40px; font-size: 32px; color: white; cursor: pointer; }
-    .modal-content { max-width: 1000px; width: 100%; max-height: 85vh; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; }
-    .modal-content img { width: 100%; border-radius: 8px; }
-    .video-container { position: relative; padding-bottom: 56.25%; height: 0; border-radius: 8px; overflow: hidden; background: #000; }
+    .modal-close { position: fixed; top: 25px; right: 30px; font-size: 28px; color: white; cursor: pointer; z-index: 1010; }
+    
+    .modal-content { 
+      max-width: 900px; width: 100%; /* จำกัดขนาดวิดีโอไม่ให้ใหญ่เกินไป */
+      display: flex; flex-direction: column; gap: 20px; 
+    }
+    .modal-content img { width: 100%; border-radius: 4px; }
+    
+    .video-container { position: relative; padding-bottom: 56.25%; height: 0; background: #000; border-radius: 4px; overflow: hidden; }
     .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
 
-    /* ── CONTACT (ส่วนท้าย) ── */
-    .contact-footer { padding: 100px 32px; background: var(--surface); text-align: center; }
-    .contact-footer h2 { font-family: 'Bebas Neue', sans-serif; font-size: 48px; letter-spacing: 6px; margin-bottom: 30px; color: var(--accent); }
+    /* ── CONTACT ── */
+    .contact-footer { padding: 100px 32px; text-align: center; border-top: 1px solid var(--border); }
+    .contact-footer h2 { font-family: 'Bebas Neue', sans-serif; font-size: 40px; letter-spacing: 5px; margin-bottom: 30px; color: var(--accent); }
     .contact-links { display: flex; justify-content: center; gap: 40px; flex-wrap: wrap; }
-    .contact-item { color: var(--text); text-decoration: none; font-size: 13px; }
-    .contact-item span { color: var(--muted); display: block; font-size: 9px; margin-bottom: 4px; letter-spacing: 2px; }
+    .contact-item { color: var(--text); text-decoration: none; font-size: 12px; letter-spacing: 1px; }
+    .contact-item span { color: var(--muted); display: block; font-size: 8px; margin-bottom: 4px; letter-spacing: 2px; }
   </style>
 </head>
 <body>
@@ -101,7 +105,7 @@
     <div class="filter-row">
       <div class="filter-label">ROLE</div>
       <div class="filter-pills" id="roleFilters">
-        <button class="pill active" data-group="role" data-value="all">All Roles</button>
+        <button class="pill active" data-group="role" data-value="all">All</button>
         <button class="pill" data-group="role" data-value="Photographer">Photographer</button>
         <button class="pill" data-group="role" data-value="Director">Director</button>
         <button class="pill" data-group="role" data-value="Colorist">Colorist</button>
@@ -110,7 +114,7 @@
     <div class="filter-row">
       <div class="filter-label">TYPE</div>
       <div class="filter-pills" id="typeFilters">
-        <button class="pill active" data-group="type" data-value="all">All Types</button>
+        <button class="pill active" data-group="type" data-value="all">All</button>
         <button class="pill" data-group="type" data-value="Product Photography">Product Photography</button>
         <button class="pill" data-group="type" data-value="Music Video">Music Video</button>
       </div>
@@ -133,7 +137,7 @@
   </section>
 
   <script>
-    /* 📁 [DATABASE] ส่วนจัดการข้อมูลโปรเจกต์ (เพิ่มงานใหม่ตรงนี้) */
+    /* 📁 [DATABASE]: เพิ่ม/แก้ไขข้อมูลงานตรงนี้ */
     const projects = [
       { 
         id: 1, 
@@ -160,24 +164,21 @@
       }
     ];
 
-    /* ⚙️ ส่วนจัดการสถานะ (State) */
+    /* ⚙️ [SYSTEM]: ส่วนจัดการระบบ (แนะนำให้ปล่อยไว้หากไม่ต้องการแก้ Logic) */
     let selectedRoles = ["all"];
     let selectedTypes = ["all"];
 
-    /* 🛠️ [FUNCTION] สร้างการ์ดผลงานลงในหน้าเว็บ */
     function renderCards() {
       const grid = document.getElementById('grid');
       grid.innerHTML = '';
 
       projects.forEach(p => {
         const card = document.createElement('div');
-        const isVideo = p.youtubeID ? 'is-video' : '';
-        card.className = `card ${isVideo}`;
+        card.className = `card ${p.youtubeID ? 'is-video' : ''}`;
         card.setAttribute('data-roles', p.roles.join(','));
         card.setAttribute('data-type', p.type);
         card.onclick = () => openProject(p);
         
-        // เลือกรูปหน้าปก (จาก YouTube หรือโฟลเดอร์)
         const coverSrc = p.youtubeID 
           ? `https://img.youtube.com/vi/${p.youtubeID}/maxresdefault.jpg` 
           : `images/${p.folder}/01.jpg`;
@@ -188,7 +189,7 @@
           </div>
           <div class="card-body">
             <div class="card-title">${p.title}</div>
-            <div class="tag-container">
+            <div>
               ${p.roles.map(r => `<span class="tag">${r}</span>`).join('')}
               <span class="tag">${p.type}</span>
             </div>
@@ -196,61 +197,49 @@
         `;
         grid.appendChild(card);
       });
-      updateFilterUI();
+      updateUI();
     }
 
-    /* 🛠️ [FUNCTION] ระบบกรองข้อมูล (Filter Logic) */
     function handlePillClick(pill) {
       const { group, value } = pill.dataset;
-      let targetArray = (group === 'role') ? selectedRoles : selectedTypes;
+      let target = (group === 'role') ? selectedRoles : selectedTypes;
 
       if (value === 'all') {
-        targetArray.splice(0, targetArray.length, 'all');
+        target.splice(0, target.length, 'all');
       } else {
-        const allIdx = targetArray.indexOf('all');
-        if (allIdx > -1) targetArray.splice(allIdx, 1);
-
-        const valIdx = targetArray.indexOf(value);
-        (valIdx > -1) ? targetArray.splice(valIdx, 1) : targetArray.push(value);
-
-        if (targetArray.length === 0) targetArray.push('all');
+        const allIdx = target.indexOf('all');
+        if (allIdx > -1) target.splice(allIdx, 1);
+        const valIdx = target.indexOf(value);
+        (valIdx > -1) ? target.splice(valIdx, 1) : target.push(value);
+        if (target.length === 0) target.push('all');
       }
 
-      // อัปเดตสีปุ่ม
       document.querySelectorAll(`.pill[data-group="${group}"]`).forEach(p => {
-        p.classList.toggle('active', targetArray.includes(p.dataset.value));
+        p.classList.toggle('active', target.includes(p.dataset.value));
       });
-
-      updateFilterUI();
+      updateUI();
     }
 
-    function updateFilterUI() {
+    function updateUI() {
       const cards = document.querySelectorAll('.card');
       let count = 0;
-
       cards.forEach(card => {
-        const cardRoles = card.dataset.roles.split(',');
-        const cardType = card.dataset.type;
-
-        const roleMatch = selectedRoles.includes('all') || cardRoles.some(r => selectedRoles.includes(r));
-        const typeMatch = selectedTypes.includes('all') || selectedTypes.includes(cardType);
-
-        if (roleMatch && typeMatch) {
-          card.classList.remove('hidden');
-          count++;
-        } else {
-          card.classList.add('hidden');
-        }
+        const roles = card.dataset.roles.split(',');
+        const type = card.dataset.type;
+        const roleMatch = selectedRoles.includes('all') || roles.some(r => selectedRoles.includes(r));
+        const typeMatch = selectedTypes.includes('all') || selectedTypes.includes(type);
+        const isVisible = roleMatch && typeMatch;
+        card.classList.toggle('hidden', !isVisible);
+        if (isVisible) count++;
       });
       document.getElementById('visibleCount').textContent = count;
     }
 
-    /* 🛠️ [FUNCTION] ระบบเปิด/ปิด Modal */
     function openProject(p) {
       const modal = document.getElementById('projectModal');
       const content = document.getElementById('modalContent');
       content.innerHTML = p.youtubeID 
-        ? `<div class="video-container"><iframe src="https://www.youtube.com/embed/${p.youtubeID}?autoplay=1" allow="autoplay; encrypted-media" allowfullscreen></iframe></div>`
+        ? `<div class="video-container"><iframe src="https://www.youtube.com/embed/${p.youtubeID}?autoplay=1" allowfullscreen></iframe></div>`
         : Array.from({length: p.totalImages}, (_, i) => `<img src="images/${p.folder}/${(i+1).toString().padStart(2, '0')}.jpg">`).join('');
       
       modal.style.display = 'flex';
@@ -264,11 +253,10 @@
       setTimeout(() => {
         modal.style.display = 'none';
         document.getElementById('modalContent').innerHTML = '';
-      }, 400);
+      }, 300);
       document.body.style.overflow = 'auto';
     }
 
-    /* 🚀 เริ่มต้นทำงาน */
     document.querySelectorAll('.pill').forEach(pill => pill.onclick = () => handlePillClick(pill));
     window.onload = renderCards;
   </script>
