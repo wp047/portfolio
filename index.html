@@ -139,6 +139,7 @@
     function renderCards() {
       const grid = document.getElementById('grid');
       grid.innerHTML = '';
+      projects.sort(() => Math.random() - 0.5);
       projects.forEach(p => {
         const card = document.createElement('div');
         card.className = `card ${p.youtubeID ? 'is-video' : ''}`;
