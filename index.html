@@ -44,11 +44,29 @@
 
     /* ── GRID ── */
     .grid-container { 
-      padding: 32px; display: grid; gap: 24px;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); 
-      align-items: start;
+  padding: 32px; 
+  columns: 4;           /* กำหนดให้มี 4 คอลัมน์แบบ Pinterest */
+  column-gap: 24px;     /* ระยะห่างระหว่างคอลัมน์แนวตั้ง */
+  display: block;       /* เปลี่ยนจาก grid เป็น block */
+}
+
+/* เพิ่มส่วนนี้เพื่อรองรับมือถือ (Optional) */
+@media (max-width: 1000px) { .grid-container { columns: 3; } }
+@media (max-width: 700px) { .grid-container { columns: 2; } }
     }
-    .card { background: var(--surface); border-radius: 12px; overflow: hidden; cursor: pointer; transition: opacity var(--speed); display: flex; flex-direction: column; }
+    .card { 
+  background: var(--surface); 
+  border-radius: 12px; 
+  overflow: hidden; 
+  cursor: pointer; 
+  transition: opacity var(--speed); 
+  
+  /* เพิ่ม 3 บรรทัดนี้ครับ */
+  display: inline-block;  /* ทำให้การ์ดไหลขึ้นไปได้ */
+  width: 100%;            /* ให้กว้างเต็มคอลัมน์ */
+  margin-bottom: 24px;    /* ระยะห่างระหว่างการ์ดบน-ล่าง */
+  break-inside: avoid;    /* ป้องกันการ์ดขาดครึ่งเวลาขึ้นคอลัมน์ใหม่ */
+}
     .card:hover { opacity: 0.7; } 
     .card-thumb { width: 100%; aspect-ratio: 3/4; overflow: hidden; background: #151515; }
     .card.is-video .card-thumb { aspect-ratio: 16/9; } 
@@ -186,7 +204,7 @@
         const rMatch = sRole.includes('all') || c.dataset.roles.split(',').some(r => sRole.includes(r));
         const tMatch = sType.includes('all') || sType.includes(c.dataset.type);
         const isVisible = rMatch && tMatch;
-        c.style.display = isVisible ? 'flex' : 'none';
+        c.style.display = isVisible ? 'inline-block' : 'none';
         if (isVisible) count++;
       });
       document.getElementById('visibleCount').textContent = count;
