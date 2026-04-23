@@ -15,7 +15,21 @@
       --text: #f0ede8;
       --muted: #666;
       --accent: #e8d5b0;
-      --speed: 0.3s; 
+      --speed: 0.3s;
+      @media (max-width: 768px) {
+  .menu-toggle { display: block; } /* โชว์ 3 ขีดในมือถือ */
+
+  .filter-section { 
+    display: none;     /* ซ่อนเมนูไว้ก่อนในมือถือ */
+    position: absolute; 
+    top: 45px;         /* ต้องเท่ากับความสูง Header */
+    left: 0; width: 100%; 
+    background: var(--bg);
+    padding: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .filter-section.show { display: block; } /* คลาสสำหรับตอนกดเปิด */
+}
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -34,6 +48,12 @@
     nav { display: flex; gap: 24px; }
     nav a { color: var(--muted); text-decoration: none; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; transition: var(--speed); }
     nav a:hover { color: var(--text); }
+    .menu-toggle { 
+  display: none;      /* ซ่อนในคอม */
+  font-size: 22px; 
+  cursor: pointer; 
+  color: var(--text);
+}
 
     /* ── FILTER SECTION (ID: work) ── */
     .filter-section { padding: 24px 32px 12px; position: sticky; top: 60px; z-index: 90; background: var(--bg); border-bottom: 1px solid var(--border); }
@@ -102,9 +122,12 @@
     <a href="#" class="logo">wp.047</a>
     <nav>
       <a href="#contact">Contact</a>
+      <div class="menu-toggle" onclick="toggleFilters()">☰</div> </nav>
+</header>
     </nav>
   </header>
 
+  <div class="filter-section" id="filterSection">
   <div class="filter-section" id="work">
     <div class="filter-row">
       <div class="filter-label">ROLE</div>
@@ -228,6 +251,10 @@
 
     document.querySelectorAll('.pill').forEach(p => p.onclick = () => handlePill(p));
     window.onload = renderCards;
+    function toggleFilters() {
+  const filter = document.getElementById('filterSection');
+  filter.classList.toggle('show');
+}
   </script>
 </body>
 </html>
