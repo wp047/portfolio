@@ -274,6 +274,7 @@
         <button class="pill" data-group="role" data-value="Colorist">Colorist</button>
         <button class="pill" data-group="role" data-value="Motion Graphic">Motion Graphic</button>
         <button class="pill" data-group="role" data-value="Videographer">Videographer</button>
+        <button class="pill" data-group="role" data-value="Assistant Director">Assistant Director</button>
       </div>
     </div>
     <div class="filter-row">
@@ -285,6 +286,7 @@
         <button class="pill" data-group="type" data-value="Video Motion">Video Motion</button>
         <button class="pill" data-group="type" data-value="Lifestyle Photography">Lifestyle Photography</button>
         <button class="pill" data-group="type" data-value="GIF">GIF</button>
+        <button class="pill" data-group="type" data-value="Live Session">Live Session</button>
       </div>
     </div>
   </div>
@@ -318,7 +320,8 @@
       { id: 10, title: "HATCH - Something Sparkling is coming", roles: ["Photographer"], type: "GIF", youtubeID: "m07rylq95tc" },
       { id: 11, title: "HATCH - The Magic Moment", roles: ["Photographer"], type: "GIF", youtubeID: "PTJlRkRsZWI" },
       { id: 12, title: "CALLADAY – Last Christmas (Wham! Cover)", roles: ["Colorist"], type: "Music Video", youtubeID: "SXWTrgumPeM" },
-      { id: 13, title: "CALLADAY – Easy (Mac Ayres Cover)", roles: ["Videographer", "Colorist"], type: "Music Video", youtubeID: "bOuCVLOgPtg" }
+      { id: 13, title: "CALLADAY – Easy (Mac Ayres Cover)", roles: ["Videographer", "Colorist"], type: "Live Session", youtubeID: "bOuCVLOgPtg" },
+      { id: 14, title: "Your Smile (รอยยิ้มของเธอ) - HAAB | Official Music Video", roles: ["Assistant Director", "Colorist"], type: "Music Video", youtubeID: "CexA0QFFivI" }
     ];
 
     let sRole = ["all"], sType = ["all"];
@@ -405,12 +408,19 @@ window.onresize = renderCards;
 
     function openProject(p) {
       const modal = document.getElementById('projectModal'), content = document.getElementById('modalContent');
-      content.innerHTML = p.youtubeID ? `<div class="video-container"><iframe src="https://www.youtube.com/embed/${p.youtubeID}?autoplay=1" allowfullscreen></iframe></div>` : 
-        Array.from({length: p.totalImages}, (_, i) => `<img src="images/${p.folder}/${(i+1).toString().padStart(2, '0')}.jpg">`).join('');
-      modal.style.display = 'flex';
-      setTimeout(() => modal.classList.add('active'), 10);
-      document.body.style.overflow = 'hidden';
-    }
+      content.innerHTML = p.youtubeID ? 
+    `<div class="video-container">
+      <iframe src="https://www.youtube.com/embed/${p.youtubeID}?autoplay=1&modestbranding=1&rel=0" 
+              allowfullscreen 
+              allow="autoplay">
+      </iframe>
+    </div>` : 
+    Array.from({length: p.totalImages}, (_, i) => `<img src="images/${p.folder}/${(i+1).toString().padStart(2, '0')}.jpg">`).join('');
+  
+  modal.style.display = 'flex';
+  setTimeout(() => modal.classList.add('active'), 10);
+  document.body.style.overflow = 'hidden';
+}
 
     function closeModal() {
       const modal = document.getElementById('projectModal');
