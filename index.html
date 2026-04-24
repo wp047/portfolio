@@ -410,7 +410,7 @@ window.onresize = renderCards;
       const modal = document.getElementById('projectModal'), content = document.getElementById('modalContent');
       content.innerHTML = p.youtubeID ? 
     `<div class="video-container">
-      <iframe src="https://www.youtube.com/embed/${p.youtubeID}?autoplay=1&modestbranding=1&rel=0" 
+      <iframe src="https://www.youtube.com/embed/${p.youtubeID}?autoplay=1&modestbranding=1&rel=0&loop=1&playlist=${p.youtubeID}" 
               allowfullscreen 
               allow="autoplay">
       </iframe>
