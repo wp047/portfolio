@@ -86,6 +86,25 @@
     .card-title { font-size: 15px; font-weight: 500; margin-bottom: 12px; }
     .tag { font-size: 9px; padding: 3px 8px; border-radius: 4px; background: var(--bg); color: var(--text); text-transform: uppercase; margin-right: 6px; }
 
+    /* --- ประมาณบรรทัดที่ 90: เพิ่มส่วนนี้เข้าไปใหม่ --- */
+.card-body div {
+  display: flex;
+  flex-wrap: wrap;    /* สั่งให้ขึ้นบรรทัดใหม่ได้ทุกขนาดหน้าจอ */
+  gap: 6px 4px;       /* ระยะห่าง บน-ล่าง และ ซ้าย-ขวา */
+  margin-top: 4px;
+}
+/* --- ประมาณบรรทัดที่ 96: แก้ไข .tag ของเดิม --- */
+.tag { 
+  font-size: 9px; 
+  padding: 3px 8px; 
+  border-radius: 4px; 
+  background: var(--bg); 
+  color: var(--text); 
+  text-transform: uppercase; 
+  
+  margin-right: 0;      /* เปลี่ยนจาก 6px เป็น 0 เพราะเราใช้ gap แทนแล้ว */
+  white-space: nowrap;  /* ป้องกันไม่ให้ตัวหนังสือใน Tag เดียวกันแยกบรรทัดกัน */
+}
     /* ── MODAL ── */
     .modal { 
       position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 1000; 
@@ -105,7 +124,7 @@
     .modal-content { width: 100%; max-width: 800px; display: flex; flex-direction: column; gap: 15px; height: fit-content; margin: auto; }
     
     .modal-content img { width: 100%; border-radius: 4px; display: block; }
-    .video-container { position: relative; width: 100%; padding-bottom: 56.25%; background: #000; border-radius: 8px; overflow: hidden; }
+    .video-container { position: relative; width: 100%; max-width: 1100px; margin:0 auto; padding-bottom: 56.25%; background: #000; border-radius: 8px; overflow: hidden; }
     .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
 
     /* ── CONTACT ── */
@@ -133,8 +152,9 @@
   text-transform: uppercase; 
   
   /* แก้ไขจุดนี้: */
-  margin-right: 0;    /* เปลี่ยนจาก 6px เป็น 0 เพราะเราใช้ gap แทนแล้ว */
-  white-space: nowrap; /* บังคับให้ข้อความใน 1 Tag อยู่บรรทัดเดียวกันเสมอ */
+  display: inline-block;
+  margin-right: 0;      /* เปลี่ยนจาก 6px เป็น 0 เพราะเราใช้ gap คุมแทนแล้ว */
+  white-space: nowrap;  /* ป้องกันไม่ให้ตัวหนังสือ "ใน Tag เดียวกัน" แยกบรรทัดกัน */
 }
       /* 1. ปรับระยะห่างระหว่าง "แถว" (Role กับ Type) */
   .filter-row {
