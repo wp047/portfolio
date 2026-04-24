@@ -117,6 +117,27 @@
 
     /* แก้ไขข้อ 4 & 5: Mobile UI */
     @media (max-width: 768px) {
+      /* 1. เพิ่มส่วนนี้เพื่อควบคุมกลุ่มของ Tag ทั้งหมด */
+.card-body div {
+  display: flex;
+  flex-wrap: wrap;    /* ยอมให้ Tag ขึ้นบรรทัดใหม่ได้ทุกขนาดจอ */
+  gap: 6px 4px;       /* เว้นระยะห่าง บน-ล่าง และ ซ้าย-ขวา */
+  margin-top: 4px;    /* เพิ่มระยะห่างจากชื่อโปรเจกต์เล็กน้อย */
+}
+
+/* 2. แก้ไขคลาส .tag เดิมของคุณ */
+.tag { 
+  font-size: 9px; 
+  padding: 3px 8px; 
+  border-radius: 4px; 
+  background: rgba(255,255,255,0.06); 
+  color: var(--muted); 
+  text-transform: uppercase; 
+  
+  /* แก้ไขจุดนี้: */
+  margin-right: 0;    /* เปลี่ยนจาก 6px เป็น 0 เพราะเราใช้ gap แทนแล้ว */
+  white-space: nowrap; /* บังคับให้ข้อความใน 1 Tag อยู่บรรทัดเดียวกันเสมอ */
+}
       /* 1. ปรับระยะห่างระหว่าง "แถว" (Role กับ Type) */
   .filter-row {
     margin-bottom: 24px; /* เพิ่มระยะห่างระหว่างแถว Role และ Type */
