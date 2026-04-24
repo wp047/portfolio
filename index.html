@@ -51,11 +51,18 @@
 
     /* ── GRID ── */
     .grid-container { 
-      padding: 32px; 
-      columns: 4; 
-      column-gap: 24px; 
-      display: block; 
-    }
+  padding: 32px; 
+  display: flex;        /* เปลี่ยนเป็น Flex */
+  align-items: flex-start; 
+  gap: 24px;            /* ระยะห่างระหว่างคอลัมน์ */
+}
+
+    .grid-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;            /* ระยะห่างระหว่างการ์ดในแนวตั้ง */
+}
 
     .card { 
       background: var(--surface); 
@@ -65,7 +72,7 @@
       transition: all var(--speed);
       display: inline-block; 
       width: 100%; 
-      margin-bottom: 24px; 
+      margin-bottom: 0px; 
       break-inside: avoid; 
     }
     .card:hover { opacity: 0.8; }
@@ -143,6 +150,8 @@
   gap: 6px 4px;       /* เว้นระยะห่าง บน-ล่าง และ ซ้าย-ขวา */
   margin-top: 4px;    /* เพิ่มระยะห่างจากชื่อโปรเจกต์เล็กน้อย */
 }
+
+
 
 /* 2. แก้ไขคลาส .tag เดิมของคุณ */
 .tag { 
@@ -230,10 +239,18 @@
   .filter-section.show { display: block; }
 
   /* 5. การจัดเรียง Card (คงเดิม) */
-  .grid-container { columns: 2; column-gap: 16px; padding: 16px; }
-  .card { margin-bottom: 16px; }
-  .card-body { padding: 12px; }
-  .card-title { font-size: 12px; }
+  .grid-container { 
+    display: flex;      /* ย้ำว่าเป็น flex */
+    padding: 16px; 
+    gap: 16px;          /* ระยะห่างซ้าย-ขวา ในมือถือ */
+  }
+
+  /* เพิ่มคลาสนี้ในส่วนมือถือด้วย */
+  .grid-col {
+    gap: 16px;          /* ระยะห่างบน-ล่าง ในมือถือ */
+  }
+
+  /* ลบบรรทัด columns: 2; และ column-gap: 16px; เดิมออกได้เลยครับ */
 }
   </style>
 </head>
@@ -307,37 +324,75 @@
     let sRole = ["all"], sType = ["all"];
 
     function renderCards() {
-      const grid = document.getElementById('grid');
-      grid.innerHTML = '';
-      projects.sort(() => Math.random() - 0.5);
-      projects.forEach(p => {
-        const card = document.createElement('div');
-        card.className = `card ${p.youtubeID ? 'is-video' : ''}`;
-        card.setAttribute('data-roles', p.roles.join(','));
-        card.setAttribute('data-type', p.type);
-        card.onclick = () => openProject(p);
-        const cover = p.youtubeID ? `https://img.youtube.com/vi/${p.youtubeID}/maxresdefault.jpg` : `images/${p.folder}/01.jpg`;
-        card.innerHTML = `<div class="card-thumb"><img src="${cover}" onerror="this.src='https://img.youtube.com/vi/${p.youtubeID}/hqdefault.jpg'"></div>
-          <div class="card-body"><div class="card-title">${p.title}</div>
-          <div>${p.roles.map(r => `<span class="tag">${r}</span>`).join('')}<span class="tag">${p.type}</span></div></div>`;
-        grid.appendChild(card);
-      });
-      update();
-    }
+  const grid = document.getElementById('grid');
+  grid.innerHTML = '';
+
+  // 1. กำหนดจำนวนคอลัมน์ตามความกว้างหน้าจอ
+  const colCount = window.innerWidth <= 768 ? 2 : 4;
+  const colElements = [];
+
+  // 2. สร้าง Element คอลัมน์เตรียมไว้
+  for (let i = 0; i < colCount; i++) {
+    const col = document.createElement('div');
+    col.className = 'grid-col';
+    grid.appendChild(col);
+    colElements.push(col);
+  }
+
+  // 3. กรองโปรเจกต์ตาม Filter (ดึง Logic จาก update เดิมมาใส่ที่นี่)
+  const filteredProjects = projects.filter(p => {
+    const rMatch = sRole.includes('all') || p.roles.some(r => sRole.includes(r));
+    const tMatch = sType.includes('all') || sType.includes(p.type);
+    return rMatch && tMatch;
+  });
+
+  // 4. (Optional) ถ้าไม่ต้องการสุ่มลำดับ ให้ลบบรรทัด sort นี้ออกครับ
+  filteredProjects.sort(() => Math.random() - 0.5);
+
+  // 5. กระจายการ์ดลงคอลัมน์แบบ Row-first (1 -> Col 1, 2 -> Col 2...)
+  filteredProjects.forEach((p, index) => {
+    const card = document.createElement('div');
+    card.className = `card ${p.youtubeID ? 'is-video' : ''}`;
+    card.onclick = () => openProject(p);
+    
+    const cover = p.youtubeID ? `https://img.youtube.com/vi/${p.youtubeID}/maxresdefault.jpg` : `images/${p.folder}/01.jpg`;
+    
+    card.innerHTML = `
+      <div class="card-thumb">
+        <img src="${cover}" onerror="this.src='https://img.youtube.com/vi/${p.youtubeID}/hqdefault.jpg'">
+      </div>
+      <div class="card-body">
+        <div class="card-title">${p.title}</div>
+        <div>
+          ${p.roles.map(r => `<span class="tag">${r}</span>`).join('')}
+          <span class="tag">${p.type}</span>
+        </div>
+      </div>`;
+    
+    // ใส่การ์ดลงในคอลัมน์ที่วนถึง (เช่น ตัวที่ 5 จะกลับไป Col 1)
+    colElements[index % colCount].appendChild(card);
+  });
+}
 
     function handlePill(pill) {
-      const { group, value } = pill.dataset;
-      let target = group === 'role' ? sRole : sType;
-      if (value === 'all') target.splice(0, target.length, 'all');
-      else {
-        if (target.includes('all')) target.splice(target.indexOf('all'), 1);
-        target.includes(value) ? target.splice(target.indexOf(value), 1) : target.push(value);
-        if (target.length === 0) target.push('all');
-      }
-      document.querySelectorAll(`.pill[data-group="${group}"]`).forEach(p => p.classList.toggle('active', target.includes(p.dataset.value)));
-      update();
-      if (window.innerWidth <= 768) toggleFilters(); // ปิดเมนูอัตโนมัติเมื่อเลือกเสร็จในมือถือ
-    }
+  const { group, value } = pill.dataset;
+  let target = group === 'role' ? sRole : sType;
+  if (value === 'all') target.splice(0, target.length, 'all');
+  else {
+    if (target.includes('all')) target.splice(target.indexOf('all'), 1);
+    target.includes(value) ? target.splice(target.indexOf(value), 1) : target.push(value);
+    if (target.length === 0) target.push('all');
+  }
+  document.querySelectorAll(`.pill[data-group="${group}"]`).forEach(p => p.classList.toggle('active', target.includes(p.dataset.value)));
+  
+  // สั่งให้วาดการ์ดใหม่แทนการซ่อน display: none
+  renderCards(); 
+  
+  if (window.innerWidth <= 768) toggleFilters();
+}
+
+// และเพิ่มคำสั่งนี้เพื่อรองรับการย่อหน้าจอแล้วคอลัมน์เปลี่ยน (Resize)
+window.onresize = renderCards;
 
     function update() {
       const cards = document.querySelectorAll('.card');
