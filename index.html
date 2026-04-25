@@ -538,6 +538,8 @@
 
     let sRole = ["all"], sType = ["all"];
 
+    projects.sort(() => Math.random() - 0.5);
+    
     function renderCards() {
         const grid = document.getElementById('grid');
         if (!grid) return;
@@ -558,8 +560,6 @@
             const tMatch = sType.includes('all') || sType.includes(p.type);
             return rMatch && tMatch;
         });
-
-        filteredProjects.sort(() => Math.random() - 0.5);
 
         filteredProjects.forEach((p, index) => {
             const card = document.createElement('div');
@@ -674,7 +674,17 @@
         menuBtn.innerHTML = filter.classList.contains('show') ? '&times;' : '☰';
     }
 
-    window.onresize = renderCards;
+    // สร้างตัวแปรเก็บความกว้างหน้าจอตอนแรกไว้
+let lastWidth = window.innerWidth;
+
+window.onresize = () => {
+    // ถ้าความกว้างปัจจุบัน ไม่เท่ากับ ความกว้างล่าสุด (เช่น หมุนจอ หรือย่อบราวเซอร์)
+    if (window.innerWidth !== lastWidth) {
+        renderCards();             // ให้วาดการ์ดใหม่
+        lastWidth = window.innerWidth; // อัปเดตค่าความกว้างล่าสุดเก็บไว้
+    }
+    // ถ้าความกว้างเท่าเดิม (เช่น เลื่อนหน้าจอมือถือแล้วแถบ Address Bar ยุบ) จะไม่ทำอะไรเลย
+};
     document.querySelectorAll('.pill').forEach(p => p.onclick = () => handlePill(p));
     window.onload = renderCards;
 </script>
