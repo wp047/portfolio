@@ -489,23 +489,13 @@
   </section>
 
   <script>
-    /* --- ประกาศตัวแปรย่อไว้บนสุด --- */
-    const pt = "Photographer";
-    const dr = "Director";
-    const cl = "Colorist";
-    const mg = "Motion Graphic";
-    const vg = "Videographer";
-    const ad = "Assistant Director";
+    /* --- ประกาศตัวแปรย่อ --- */
+    const pt = "Photographer", dr = "Director", cl = "Colorist", 
+          mg = "Motion Graphic", vg = "Videographer", ad = "Assistant Director";
+    const pp = "Product Photography", mv = "Music Video", vm = "Video Motion", 
+          lp = "Lifestyle Photography", ls = "Live Session", gf = "GIF", 
+          ads = "Ads", wd = "Wedding", iw = "Interview";
 
-    const pp = "Product Photography";
-    const mv = "Music Video";
-    const vm = "Video Motion";
-    const lp = "Lifestyle Photography";
-    const ls = "Live Session";
-    const gf = "GIF";
-    const ads = "Ads";
-    const wd = "Wedding";
-    const iw = "Interview";
     const projects = [
       { id: 1, title: "HAAB 2025 Wrapped Collection", roles: [pt], type: pp, folder: "HAAB-2025-wrapped-collection", totalImages: 4 },
       { id: 2, title: "HAAB x Meovv", roles: [pt], type: pp, folder: "HAAB-Meovv", totalImages: 4 },
@@ -536,216 +526,138 @@
       { id: 27, title: "Layers - The Christmas ICONS Cup Lifestlye", roles: [pt], type: lp, folder: "Layers - The Christmas ICONS Cup Lifestlye", totalImages: 4},
       { id: 28, title: "Wedding T&A", roles: [vg, cl], type: wd, youtubeID: "5UyOJT5pK2Q" },
       { id: 29, title: "Kung Fu Panda 4", roles: [vg], type: iw, playlistID: "PLS0ME4fNc3k24a3R1wTKxjyQ45JrGnPEd", coverID: "R9EGSIltaN0" }
-      ];
+    ];
 
     let sRole = ["all"], sType = ["all"];
 
     function renderCards() {
-  const grid = document.getElementById('grid');
-  grid.innerHTML = '';
+        const grid = document.getElementById('grid');
+        grid.innerHTML = '';
+        const colCount = window.innerWidth <= 768 ? 2 : 4;
+        const colElements = [];
 
-  /* ในฟังก์ชัน renderCards */
-  const isVideo = p.playlistID || (p.youtubeIDs && p.youtubeIDs.length > 0);
-  
-  // ลำดับการเลือกรูปหน้าปก: 
-  // 1. ถ้ามี folder รูปภาพ ให้ใช้รูป 01.jpg 
-  // 2. ถ้ามี coverID ให้ใช้รูปจาก ID นั้น
-  // 3. ถ้ามี youtubeIDs ให้ใช้รูปจากตัวแรกใน Array
-  const cover = p.folder ? `images/${p.folder}/01.jpg` : 
-                (p.coverID ? `https://img.youtube.com/vi/${p.coverID}/maxresdefault.jpg` : 
-                `https://img.youtube.com/vi/${p.youtubeIDs[0]}/maxresdefault.jpg`);
+        for (let i = 0; i < colCount; i++) {
+            const col = document.createElement('div');
+            col.className = 'grid-col';
+            grid.appendChild(col);
+            colElements.push(col);
+        }
 
-card.className = `card ${isVideo ? 'is-video' : ''}`;
-      
-  // 1. กำหนดจำนวนคอลัมน์ตามความกว้างหน้าจอ
-  const colCount = window.innerWidth <= 768 ? 2 : 4;
-  const colElements = [];
+        const filteredProjects = projects.filter(p => {
+            const rMatch = sRole.includes('all') || p.roles.some(r => sRole.includes(r));
+            const tMatch = sType.includes('all') || sType.includes(p.type);
+            return rMatch && tMatch;
+        });
 
-  // 2. สร้าง Element คอลัมน์เตรียมไว้
-  for (let i = 0; i < colCount; i++) {
-    const col = document.createElement('div');
-    col.className = 'grid-col';
-    grid.appendChild(col);
-    colElements.push(col);
-  }
+        filteredProjects.sort(() => Math.random() - 0.5);
 
-  // 3. กรองโปรเจกต์ตาม Filter (ดึง Logic จาก update เดิมมาใส่ที่นี่)
-  const filteredProjects = projects.filter(p => {
-    const rMatch = sRole.includes('all') || p.roles.some(r => sRole.includes(r));
-    const tMatch = sType.includes('all') || sType.includes(p.type);
-    return rMatch && tMatch;
-  });
+        filteredProjects.forEach((p, index) => {
+            const card = document.createElement('div');
+            // เช็กว่าเป็นวิดีโอหรือไม่ (รองรับทั้งแบบ ID เดียว, หลาย ID, หรือ Playlist)
+            const isVideo = p.youtubeID || p.playlistID || (p.youtubeIDs && p.youtubeIDs.length > 0);
+            card.className = `card ${isVideo ? 'is-video' : ''}`;
+            card.onclick = () => openProject(p);
+            
+            // หาหน้าปก Card
+            let coverImg = "";
+            if (p.folder) coverImg = `images/${p.folder}/01.jpg`;
+            else if (p.coverID) coverImg = `https://img.youtube.com/vi/${p.coverID}/maxresdefault.jpg`;
+            else if (p.youtubeID) coverImg = `https://img.youtube.com/vi/${p.youtubeID}/maxresdefault.jpg`;
+            else if (p.youtubeIDs) coverImg = `https://img.youtube.com/vi/${p.youtubeIDs[0]}/maxresdefault.jpg`;
 
-  // 4. (Optional) ถ้าไม่ต้องการสุ่มลำดับ ให้ลบบรรทัด sort นี้ออกครับ
-  filteredProjects.sort(() => Math.random() - 0.5);
-
-  // 5. กระจายการ์ดลงคอลัมน์แบบ Row-first (1 -> Col 1, 2 -> Col 2...)
-  filteredProjects.forEach((p, index) => {
-    const card = document.createElement('div');
-    card.className = `card ${p.youtubeID ? 'is-video' : ''}`;
-    card.onclick = () => openProject(p);
-    
-    const cover = p.youtubeID ? `https://img.youtube.com/vi/${p.youtubeID}/maxresdefault.jpg` : `images/${p.folder}/01.jpg`;
-    
-    card.innerHTML = `
-    <div class="card-thumb">
-        <img src="${cover}" 
-             loading="lazy" 
-             decoding="async" 
-             onerror="this.src='https://img.youtube.com/vi/${p.youtubeID}/hqdefault.jpg'">
-    </div>
-    <div class="card-body">
-        <div class="card-title">${p.title}</div>
-        <div>
-            ${p.roles.map(r => `<span class="tag">${r}</span>`).join('')}
-            <span class="tag">${p.type}</span>
-        </div>
-    </div>`;
-    
-    // ใส่การ์ดลงในคอลัมน์ที่วนถึง (เช่น ตัวที่ 5 จะกลับไป Col 1)
-    colElements[index % colCount].appendChild(card);
-  });
-}
-
-    function handlePill(pill) {
-  const { group, value } = pill.dataset;
-  let target = group === 'role' ? sRole : sType;
-  if (value === 'all') target.splice(0, target.length, 'all');
-  else {
-    if (target.includes('all')) target.splice(target.indexOf('all'), 1);
-    target.includes(value) ? target.splice(target.indexOf(value), 1) : target.push(value);
-    if (target.length === 0) target.push('all');
-  }
-  document.querySelectorAll(`.pill[data-group="${group}"]`).forEach(p => p.classList.toggle('active', target.includes(p.dataset.value)));
-  
-  // สั่งให้วาดการ์ดใหม่แทนการซ่อน display: none
-  renderCards(); 
-  
-  if (window.innerWidth <= 768) toggleFilters();
-}
-
-// และเพิ่มคำสั่งนี้เพื่อรองรับการย่อหน้าจอแล้วคอลัมน์เปลี่ยน (Resize)
-window.onresize = renderCards;
-
-    function update() {
-      const cards = document.querySelectorAll('.card');
-      cards.forEach(c => {
-        const rMatch = sRole.includes('all') || c.dataset.roles.split(',').some(r => sRole.includes(r));
-        const tMatch = sType.includes('all') || sType.includes(c.dataset.type);
-        c.style.display = (rMatch && tMatch) ? 'inline-block' : 'none';
-      });
+            card.innerHTML = `
+                <div class="card-thumb">
+                    <img src="${coverImg}" loading="lazy" decoding="async" onerror="this.src='https://img.youtube.com/vi/${p.youtubeID || p.coverID || p.youtubeIDs[0]}/hqdefault.jpg'">
+                </div>
+                <div class="card-body">
+                    <div class="card-title">${p.title}</div>
+                    <div>
+                        ${p.roles.map(r => `<span class="tag">${r}</span>`).join('')}
+                        <span class="tag">${p.type}</span>
+                    </div>
+                </div>`;
+            colElements[index % colCount].appendChild(card);
+        });
     }
 
     function openProject(p) {
-  const modal = document.getElementById('projectModal'), 
-        content = document.getElementById('modalContent');
+        const modal = document.getElementById('projectModal'), 
+              content = document.getElementById('modalContent');
+        content.innerHTML = ''; 
 
-  content.innerHTML = ''; 
+        // 1. จัดการ YouTube Playlist
+        if (p.playlistID) {
+            content.innerHTML += `<div class="video-container" style="margin-bottom: 20px;"><iframe src="https://www.youtube.com/embed/videoseries?list=${p.playlistID}&modestbranding=1&rel=0" allowfullscreen></iframe></div>`;
+        }
 
-  // 1. ถ้ามี Playlist ให้โชว์ Playlist ก่อน
-  if (p.playlistID) {
-    content.innerHTML += `
-      <div class="video-container" style="margin-bottom: 20px;">
-        <iframe src="https://www.youtube.com/embed/videoseries?list=${p.playlistID}&modestbranding=1&rel=0" 
-                allowfullscreen></iframe>
-      </div>`;
-  }
+        // 2. จัดการ YouTube ID เดียว
+        if (p.youtubeID) {
+            content.innerHTML += `<div class="video-container" style="margin-bottom: 20px;"><iframe src="https://www.youtube.com/embed/${p.youtubeID}?autoplay=1&modestbranding=1&rel=0" allowfullscreen allow="autoplay"></iframe></div>`;
+        }
 
-  // 2. ถ้ามีวิดีโอหลายตัว (youtubeIDs) ก็ให้โชว์ต่อท้ายได้
-  if (p.youtubeIDs && p.youtubeIDs.length > 0) {
-    content.innerHTML += p.youtubeIDs.map(id => `
-      <div class="video-container" style="margin-bottom: 20px;">
-        <iframe src="https://www.youtube.com/embed/${id}?modestbranding=1&rel=0" allowfullscreen></iframe>
-      </div>
-    `).join('');
-  } 
+        // 3. จัดการ YouTube หลายตัว
+        if (p.youtubeIDs) {
+            p.youtubeIDs.forEach(id => {
+                content.innerHTML += `<div class="video-container" style="margin-bottom: 20px;"><iframe src="https://www.youtube.com/embed/${id}?modestbranding=1&rel=0" allowfullscreen></iframe></div>`;
+            });
+        }
 
-  // 3. ถ้าเป็นรูปภาพ (folder)
-  if (p.folder) {
-    Array.from({length: p.totalImages}, (_, i) => {
-      const imgPath = `images/${p.folder}/${(i+1).toString().padStart(2, '0')}.jpg`;
-      const imgElement = document.createElement('img');
-      imgElement.src = imgPath;
-      imgElement.onload = function() { this.classList.add('loaded'); };
-      content.appendChild(imgElement);
-    });
-  }
+        // 4. จัดการรูปภาพ (ถ้ามี)
+        if (p.folder) {
+            Array.from({length: p.totalImages}, (_, i) => {
+                const imgPath = `images/${p.folder}/${(i+1).toString().padStart(2, '0')}.jpg`;
+                const imgElement = document.createElement('img');
+                imgElement.src = imgPath;
+                imgElement.onload = function() { this.classList.add('loaded'); };
+                imgElement.onerror = function() { this.style.display = 'none'; };
+                content.appendChild(imgElement);
+            });
+        }
 
-  modal.style.display = 'flex';
-  setTimeout(() => modal.classList.add('active'), 10);
-  document.body.style.overflow = 'hidden';
-}
-    // --- ⚡️ จุดที่แก้ไข: การจัดการรูปภาพในโฟลเดอร์แบบนุ่มนวล ---
-    content.innerHTML = ''; // ล้างเนื้อหาเก่าออกก่อน
-
-    // วนลูปสร้างรูปภาพทีละใบ
-    Array.from({length: p.totalImages}, (_, i) => {
-      const imgPath = `images/${p.folder}/${(i+1).toString().padStart(2, '0')}.jpg`;
-      const imgElement = document.createElement('img'); // สร้างแท็ก img ในหน่วยความจำ
-      imgElement.src = imgPath;
-      
-      // ⚡️ คำสั่งสำคัญ: เมื่อรูปภาพใบนี้โหลดเสร็จเต็มใบ
-      imgElement.onload = function() {
-        // เติมคลาส .loaded เพื่อให้ CSS Transition ทำงาน
-        this.classList.add('loaded'); 
-      };
-
-      // ในกรณีที่รูปโหลดผิดพลาด
-      imgElement.onerror = function() {
-        this.src = 'images/fallback-placeholder.webp'; // ใช้รูปสำรอง
-        this.classList.add('loaded'); // สั่งให้โชว์รูปสำรองแบบนุ่มนวล
-      };
-
-      content.appendChild(imgElement); // นำรูปไปใส่ใน Modal Content
-    });
-  }
-
-  // จังหวะเปิด Modal (นุ่มนวลตามเดิม)
-  modal.style.display = 'flex';
-  setTimeout(() => modal.classList.add('active'), 10);
-  document.body.style.overflow = 'hidden';
-}
+        modal.style.display = 'flex';
+        setTimeout(() => modal.classList.add('active'), 10);
+        document.body.style.overflow = 'hidden';
+    }
 
     function closeModal() {
-  const modal = document.getElementById('projectModal');
-  const closeBtn = document.querySelector('.modal-close'); // ดึงปุ่ม X มา
-  
-  // ⚡️ สั่งให้ปุ่ม X หายไปทันที (ไม่มี Delay)
-  if (closeBtn) closeBtn.style.display = 'none'; 
-  
-  modal.classList.remove('active'); // ตัว Modal ค่อยๆ Fade ออกตามปกติ
-  
-  setTimeout(() => { 
-    modal.style.display = 'none'; 
-    document.getElementById('modalContent').innerHTML = '';
-    
-    // ⚡️ คืนค่า display ให้ปุ่ม X เพื่อให้มันกลับมาโชว์ตอนเปิดรูปถัดไป
-    if (closeBtn) closeBtn.style.display = 'block'; 
-    
-    const modalBody = document.querySelector('.modal-body');
-    if(modalBody) modalBody.scrollTop = 0;
-  }, 500); // 500ms คือเวลาที่ Modal ใช้ Fade ออก
-  
-  document.body.style.overflow = 'auto';
-}
+        const modal = document.getElementById('projectModal');
+        const closeBtn = document.querySelector('.modal-close');
+        if (closeBtn) closeBtn.style.display = 'none'; 
+        modal.classList.remove('active');
+        setTimeout(() => { 
+            modal.style.display = 'none'; 
+            document.getElementById('modalContent').innerHTML = '';
+            if (closeBtn) closeBtn.style.display = 'block'; 
+            const modalBody = document.querySelector('.modal-body');
+            if(modalBody) modalBody.scrollTop = 0;
+        }, 500);
+        document.body.style.overflow = 'auto';
+    }
+
+    function handlePill(pill) {
+        const { group, value } = pill.dataset;
+        let target = group === 'role' ? sRole : sType;
+        if (value === 'all') target.splice(0, target.length, 'all');
+        else {
+            if (target.includes('all')) target.splice(target.indexOf('all'), 1);
+            target.includes(value) ? target.splice(target.indexOf(value), 1) : target.push(value);
+            if (target.length === 0) target.push('all');
+        }
+        document.querySelectorAll(`.pill[data-group="${group}"]`).forEach(p => p.classList.toggle('active', target.includes(p.dataset.value)));
+        renderCards();
+        if (window.innerWidth <= 768 && document.getElementById('filterSection').classList.contains('show')) toggleFilters();
+    }
 
     function toggleFilters() {
-    const filter = document.getElementById('filterSection');
-    const menuBtn = document.querySelector('.menu-toggle');
-    
-    filter.classList.toggle('show');
-    
-    if (filter.classList.contains('show')) {
-        menuBtn.innerHTML = '&times;'; 
-        // ลบบรรทัด menuBtn.style.transform ออก
-    } else {
-        menuBtn.innerHTML = '☰'; 
-        // ลบบรรทัด menuBtn.style.transform ออก
+        const filter = document.getElementById('filterSection');
+        const menuBtn = document.querySelector('.menu-toggle');
+        filter.classList.toggle('show');
+        menuBtn.innerHTML = filter.classList.contains('show') ? '&times;' : '☰';
     }
-}
 
+    window.onresize = renderCards;
     document.querySelectorAll('.pill').forEach(p => p.onclick = () => handlePill(p));
     window.onload = renderCards;
-  </script>
+</script>
 </body>
 </html>
