@@ -453,6 +453,7 @@
         <button class="pill" data-group="role" data-value="Motion Graphic">Motion Graphic</button>
         <button class="pill" data-group="role" data-value="Videographer">Videographer</button>
         <button class="pill" data-group="role" data-value="Assistant Director">Assistant Director</button>
+        <button class="pill" data-group="role" data-value="Editor">Editor</button>
       </div>
     </div>
     <div class="filter-row">
@@ -466,6 +467,8 @@
         <button class="pill" data-group="type" data-value="GIF">GIF</button>
         <button class="pill" data-group="type" data-value="Live Session">Live Session</button>
         <button class="pill" data-group="type" data-value="Ads">Ads</button>
+        <button class="pill" data-group="type" data-value="Interview">Interview</button>
+        <button class="pill" data-group="type" data-value="Wedding">Wedding</button>
       </div>
     </div>
   </div>
@@ -525,7 +528,7 @@
       { id: 26, title: "Layers - The Christmas ICONS Cup", roles: [pt], type: pp, folder: "Layers - The Christmas ICONS Cup", totalImages: 4},
       { id: 27, title: "Layers - The Christmas ICONS Cup Lifestlye", roles: [pt], type: lp, folder: "Layers - The Christmas ICONS Cup Lifestlye", totalImages: 4},
       { id: 28, title: "Wedding T&A", roles: [vg, cl], type: wd, youtubeID: "5UyOJT5pK2Q" },
-      { id: 29, title: "Kung Fu Panda 4", roles: [vg], type: iw, playlistID: "PLS0ME4fNc3k24a3R1wTKxjyQ45JrGnPEd", coverID: "R9EGSIltaN0" }
+      { id: 29, title: "Kung Fu Panda 4", roles: [vg], type: iw, youtubeIDs: ["OEnzHdAcwiU", "R9EGSIltaN0", "vdtyfsbdJ4", "0LijMmepLdI"] }
     ];
 
     let sRole = ["all"], sType = ["all"];
@@ -555,24 +558,24 @@
 
         filteredProjects.forEach((p, index) => {
             const card = document.createElement('div');
-            const isVideo = !!(p.youtubeID || p.playlistID || (p.youtubeIDs && p.youtubeIDs.length > 0));
+            const isVideo = !!(p.youtubeID || (p.youtubeIDs && p.youtubeIDs.length > 0));
             card.className = `card ${isVideo ? 'is-video' : ''}`;
             card.onclick = () => openProject(p);
             
-            // ตรรกะหาหน้าปก Card (ปลอดภัยขึ้น)
+            // ตรรกะหาหน้าปก Card: ใช้รูปจาก Folder ก่อน ถ้าไม่มีให้ดึงจาก Video ตัวแรก
             let coverImg = "";
-            let fbID = p.youtubeID || p.coverID || (p.youtubeIDs ? p.youtubeIDs[0] : "");
+            let firstVideoID = p.youtubeID || (p.youtubeIDs ? p.youtubeIDs[0] : "");
 
             if (p.folder) {
                 coverImg = `images/${p.folder}/01.jpg`;
-            } else {
-                coverImg = `https://img.youtube.com/vi/${fbID}/maxresdefault.jpg`;
+            } else if (firstVideoID) {
+                coverImg = `https://img.youtube.com/vi/${firstVideoID}/maxresdefault.jpg`;
             }
 
             card.innerHTML = `
                 <div class="card-thumb">
                     <img src="${coverImg}" loading="lazy" decoding="async" 
-                         onerror="if(this.src.includes('maxres')) this.src='https://img.youtube.com/vi/${fbID}/hqdefault.jpg'">
+                         onerror="if(this.src.includes('maxres')) this.src='https://img.youtube.com/vi/${firstVideoID}/hqdefault.jpg'">
                 </div>
                 <div class="card-body">
                     <div class="card-title">${p.title}</div>
@@ -591,21 +594,24 @@
         if (!modal || !content) return;
         content.innerHTML = ''; 
 
-        // 1. YouTube Playlist
-        if (p.playlistID) {
-            content.innerHTML += `<div class="video-container" style="margin-bottom: 20px;"><iframe src="https://www.youtube.com/embed/videoseries?list=${p.playlistID}&modestbranding=1&rel=0" allowfullscreen></iframe></div>`;
-        }
-        // 2. YouTube Single ID
-        if (p.youtubeID) {
-            content.innerHTML += `<div class="video-container" style="margin-bottom: 20px;"><iframe src="https://www.youtube.com/embed/${p.youtubeID}?autoplay=1&modestbranding=1&rel=0" allowfullscreen allow="autoplay"></iframe></div>`;
-        }
-        // 3. YouTube Multiple IDs
+        // 1. ถ้ามีวิดีโอหลายตัว (youtubeIDs)
         if (p.youtubeIDs && p.youtubeIDs.length > 0) {
             p.youtubeIDs.forEach(id => {
-                content.innerHTML += `<div class="video-container" style="margin-bottom: 20px;"><iframe src="https://www.youtube.com/embed/${id}?modestbranding=1&rel=0" allowfullscreen></iframe></div>`;
+                content.innerHTML += `
+                    <div class="video-container" style="margin-bottom: 25px;">
+                        <iframe src="https://www.youtube.com/embed/${id}?modestbranding=1&rel=0" allowfullscreen></iframe>
+                    </div>`;
             });
+        } 
+        // 2. ถ้ามีวิดีโอเดี่ยว (youtubeID)
+        else if (p.youtubeID) {
+            content.innerHTML += `
+                <div class="video-container" style="margin-bottom: 25px;">
+                    <iframe src="https://www.youtube.com/embed/${p.youtubeID}?autoplay=1&modestbranding=1&rel=0" allowfullscreen allow="autoplay"></iframe>
+                </div>`;
         }
-        // 4. Images in Folder
+
+        // 3. ถ้ามีรูปภาพใน Folder (โหลดต่อนุ่มๆ)
         if (p.folder && p.totalImages) {
             Array.from({length: p.totalImages}, (_, i) => {
                 const imgPath = `images/${p.folder}/${(i+1).toString().padStart(2, '0')}.jpg`;
@@ -625,7 +631,10 @@
     function closeModal() {
         const modal = document.getElementById('projectModal');
         const closeBtn = document.querySelector('.modal-close');
+        
+        // ปุ่ม X หายทันที
         if (closeBtn) closeBtn.style.display = 'none'; 
+        
         modal.classList.remove('active');
         setTimeout(() => { 
             modal.style.display = 'none'; 
