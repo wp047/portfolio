@@ -165,45 +165,50 @@
   backdrop-filter: blur(15px);    /* ฉากหลังค่อยๆ เบลอ */
 }
 
-        /* แก้ไขปุ่มกากบาทให้ลอยค้างและชัดเจนตลอดเวลา */
-    .modal-close { 
+        /* แก้ไขให้เหลือแค่กากบาทสีขาว นิ่งๆ */
+.modal-close { 
   position: fixed; 
-  top: 25px; 
-  right: 25px; 
-  width: 50px; 
-  height: 50px;
-  background: rgba(0, 0, 0, 0.6); /* เพิ่มความเข้มพื้นหลังปุ่มเพื่อให้ชัดเจน */
-  backdrop-filter: blur(10px);
-  color: white; 
-  display: flex; 
-  align-items: center; 
-  justify-content: center;
-  border-radius: 50%; 
-  font-size: 30px; 
-  cursor: pointer;
-  z-index: 99999; /* สูงกว่าทุกอย่าง */
-  transition: all 0.3s ease;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  top: 20px; 
+  right: 30px; 
+  
+  /* ลบพื้นหลังและวงกลมออก */
+  background: none; 
+  backdrop-filter: none;
+  border: none;
+  border-radius: 0;
+  width: auto;
+  height: auto;
+
+  /* สไตล์ของตัว X */
+  font-size: 45px;      /* ขนาดใหญ่สะใจตามโค้ดดั้งเดิมของคุณ */
+  color: #ffffff;      /* สีขาวล้วน */
+  font-family: Arial, sans-serif; 
+  line-height: 1;
+  cursor: pointer; 
+  
+  /* ลำดับชั้นสูงที่สุด */
+  z-index: 999999; 
+  
+  /* ลบ Motion ทั้งหมด */
+  transition: opacity 0.3s ease; /* เหลือแค่การจางเข้า-ออกเบาๆ เวลาเอาเมาส์วาง */
 }
-    
-    /* เอฟเฟกต์ตอนเอาเมาส์ไปวาง */
-    .modal-close:hover {
-      background: var(--accent);
-      color: #000;
-      transform: rotate(90deg); /* หมุนนิดๆ ให้ดูมีลูกเล่น */
-    }
-    
-    /* ปรับตำแหน่งบนมือถือให้กดง่ายขึ้น */
-    @media (max-width: 768px) {
-      .modal-close {
-        top: 15px;
-        right: 15px;
-        width: 40px;
-        height: 40px;
-        font-size: 28px;
-        background: rgba(0, 0, 0, 0.5); /* มือถือให้พื้นหลังเข้มขึ้นเพื่อความชัดเจน */
-      }
-    }
+
+/* ตอนเอาเมาส์วาง ให้แค่จางลงนิดเดียวพอครับ (UX Feedback) */
+.modal-close:hover {
+  opacity: 0.6;
+  transform: none; /* มั่นใจว่าไม่มีการขยับ */
+  background: none;
+  color: #ffffff;
+}
+
+/* ปรับตำแหน่งบนมือถือ */
+@media (max-width: 768px) {
+  .modal-close {
+    top: 15px;
+    right: 20px;
+    font-size: 40px;
+  }
+}
 
     /* แก้ไขข้อ 2: ขยายขนาดวิดีโอ */
     .modal-content { width: 100%; max-width: 1500px; display: flex; flex-direction: column; gap: 15px; height: fit-content; margin: auto; align-items: center; opacity: 0; 
@@ -655,15 +660,23 @@ window.onresize = renderCards;
 
     function closeModal() {
   const modal = document.getElementById('projectModal');
-  const modalBody = document.querySelector('.modal-body'); // เพิ่มบรรทัดนี้
+  const closeBtn = document.querySelector('.modal-close'); // ดึงปุ่ม X มา
   
-  modal.classList.remove('active');
+  // ⚡️ สั่งให้ปุ่ม X หายไปทันที (ไม่มี Delay)
+  if (closeBtn) closeBtn.style.display = 'none'; 
+  
+  modal.classList.remove('active'); // ตัว Modal ค่อยๆ Fade ออกตามปกติ
   
   setTimeout(() => { 
     modal.style.display = 'none'; 
     document.getElementById('modalContent').innerHTML = '';
-    if(modalBody) modalBody.scrollTop = 0; // รีเซ็ตการเลื่อนกลับไปด้านบนสุด
-  }, 500); 
+    
+    // ⚡️ คืนค่า display ให้ปุ่ม X เพื่อให้มันกลับมาโชว์ตอนเปิดรูปถัดไป
+    if (closeBtn) closeBtn.style.display = 'block'; 
+    
+    const modalBody = document.querySelector('.modal-body');
+    if(modalBody) modalBody.scrollTop = 0;
+  }, 500); // 500ms คือเวลาที่ Modal ใช้ Fade ออก
   
   document.body.style.overflow = 'auto';
 }
@@ -674,13 +687,12 @@ window.onresize = renderCards;
     
     filter.classList.toggle('show');
     
-    // เปลี่ยนสัญลักษณ์ ☰ เป็น ✕ และหมุนปุ่ม
     if (filter.classList.contains('show')) {
-        menuBtn.innerHTML = '&times;'; // เครื่องหมายกากบาท
-        menuBtn.style.transform = 'rotate(90deg)';
+        menuBtn.innerHTML = '&times;'; 
+        // ลบบรรทัด menuBtn.style.transform ออก
     } else {
-        menuBtn.innerHTML = '☰'; // กลับเป็นสามขีด
-        menuBtn.style.transform = 'rotate(0deg)';
+        menuBtn.innerHTML = '☰'; 
+        // ลบบรรทัด menuBtn.style.transform ออก
     }
 }
 
