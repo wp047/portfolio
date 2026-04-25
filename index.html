@@ -87,9 +87,17 @@
       filter: brightness(1.2);
     }
 
-    .card-thumb { width: 100%; aspect-ratio: 3/4; overflow: hidden; background: #151515; }
+    .card-thumb { width: 100%; aspect-ratio: 3/4; overflow: hidden; background: #151515; position: relative;}
+    .card-thumb::after {content: ""; position: absolute; top: 0; left: -150%; width: 150%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent); 
+    animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(150%); }
+}
     .card.is-video .card-thumb { aspect-ratio: 16/9; } 
-    .card-thumb img { width: 100%; height: 100%; object-fit: cover; transition: var(--speed); }
+    .card-thumb img { width: 100%; height: 100%; object-fit: cover; transition: opacity 0.5s ease; position: relative; z-index: 1; }
     .card-body { padding: 20px; }
     .card-title { font-size: 15px; font-weight: 500; margin-bottom: 12px; }
     .tag { font-size: 9px; padding: 3px 8px; border-radius: 4px; background: var(--bg); color: var(--text); text-transform: uppercase; margin-right: 6px; }
