@@ -532,7 +532,9 @@
 
     function renderCards() {
         const grid = document.getElementById('grid');
+        if (!grid) return;
         grid.innerHTML = '';
+        
         const colCount = window.innerWidth <= 768 ? 2 : 4;
         const colElements = [];
 
@@ -553,21 +555,24 @@
 
         filteredProjects.forEach((p, index) => {
             const card = document.createElement('div');
-            // เช็กว่าเป็นวิดีโอหรือไม่ (รองรับทั้งแบบ ID เดียว, หลาย ID, หรือ Playlist)
-            const isVideo = p.youtubeID || p.playlistID || (p.youtubeIDs && p.youtubeIDs.length > 0);
+            const isVideo = !!(p.youtubeID || p.playlistID || (p.youtubeIDs && p.youtubeIDs.length > 0));
             card.className = `card ${isVideo ? 'is-video' : ''}`;
             card.onclick = () => openProject(p);
             
-            // หาหน้าปก Card
+            // ตรรกะหาหน้าปก Card (ปลอดภัยขึ้น)
             let coverImg = "";
-            if (p.folder) coverImg = `images/${p.folder}/01.jpg`;
-            else if (p.coverID) coverImg = `https://img.youtube.com/vi/${p.coverID}/maxresdefault.jpg`;
-            else if (p.youtubeID) coverImg = `https://img.youtube.com/vi/${p.youtubeID}/maxresdefault.jpg`;
-            else if (p.youtubeIDs) coverImg = `https://img.youtube.com/vi/${p.youtubeIDs[0]}/maxresdefault.jpg`;
+            let fbID = p.youtubeID || p.coverID || (p.youtubeIDs ? p.youtubeIDs[0] : "");
+
+            if (p.folder) {
+                coverImg = `images/${p.folder}/01.jpg`;
+            } else {
+                coverImg = `https://img.youtube.com/vi/${fbID}/maxresdefault.jpg`;
+            }
 
             card.innerHTML = `
                 <div class="card-thumb">
-                    <img src="${coverImg}" loading="lazy" decoding="async" onerror="this.src='https://img.youtube.com/vi/${p.youtubeID || p.coverID || p.youtubeIDs[0]}/hqdefault.jpg'">
+                    <img src="${coverImg}" loading="lazy" decoding="async" 
+                         onerror="if(this.src.includes('maxres')) this.src='https://img.youtube.com/vi/${fbID}/hqdefault.jpg'">
                 </div>
                 <div class="card-body">
                     <div class="card-title">${p.title}</div>
@@ -583,27 +588,25 @@
     function openProject(p) {
         const modal = document.getElementById('projectModal'), 
               content = document.getElementById('modalContent');
+        if (!modal || !content) return;
         content.innerHTML = ''; 
 
-        // 1. จัดการ YouTube Playlist
+        // 1. YouTube Playlist
         if (p.playlistID) {
             content.innerHTML += `<div class="video-container" style="margin-bottom: 20px;"><iframe src="https://www.youtube.com/embed/videoseries?list=${p.playlistID}&modestbranding=1&rel=0" allowfullscreen></iframe></div>`;
         }
-
-        // 2. จัดการ YouTube ID เดียว
+        // 2. YouTube Single ID
         if (p.youtubeID) {
             content.innerHTML += `<div class="video-container" style="margin-bottom: 20px;"><iframe src="https://www.youtube.com/embed/${p.youtubeID}?autoplay=1&modestbranding=1&rel=0" allowfullscreen allow="autoplay"></iframe></div>`;
         }
-
-        // 3. จัดการ YouTube หลายตัว
-        if (p.youtubeIDs) {
+        // 3. YouTube Multiple IDs
+        if (p.youtubeIDs && p.youtubeIDs.length > 0) {
             p.youtubeIDs.forEach(id => {
                 content.innerHTML += `<div class="video-container" style="margin-bottom: 20px;"><iframe src="https://www.youtube.com/embed/${id}?modestbranding=1&rel=0" allowfullscreen></iframe></div>`;
             });
         }
-
-        // 4. จัดการรูปภาพ (ถ้ามี)
-        if (p.folder) {
+        // 4. Images in Folder
+        if (p.folder && p.totalImages) {
             Array.from({length: p.totalImages}, (_, i) => {
                 const imgPath = `images/${p.folder}/${(i+1).toString().padStart(2, '0')}.jpg`;
                 const imgElement = document.createElement('img');
@@ -640,7 +643,8 @@
         if (value === 'all') target.splice(0, target.length, 'all');
         else {
             if (target.includes('all')) target.splice(target.indexOf('all'), 1);
-            target.includes(value) ? target.splice(target.indexOf(value), 1) : target.push(value);
+            if (target.includes(value)) target.splice(target.indexOf(value), 1);
+            else target.push(value);
             if (target.length === 0) target.push('all');
         }
         document.querySelectorAll(`.pill[data-group="${group}"]`).forEach(p => p.classList.toggle('active', target.includes(p.dataset.value)));
@@ -651,6 +655,7 @@
     function toggleFilters() {
         const filter = document.getElementById('filterSection');
         const menuBtn = document.querySelector('.menu-toggle');
+        if (!filter || !menuBtn) return;
         filter.classList.toggle('show');
         menuBtn.innerHTML = filter.classList.contains('show') ? '&times;' : '☰';
     }
