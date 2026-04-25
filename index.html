@@ -504,6 +504,8 @@
     const ls = "Live Session";
     const gf = "GIF";
     const ads = "Ads";
+    const wd = "Wedding";
+    const iw = "Interview";
     const projects = [
       { id: 1, title: "HAAB 2025 Wrapped Collection", roles: [pt], type: pp, folder: "HAAB-2025-wrapped-collection", totalImages: 4 },
       { id: 2, title: "HAAB x Meovv", roles: [pt], type: pp, folder: "HAAB-Meovv", totalImages: 4 },
@@ -531,7 +533,9 @@
       { id: 24, title: "Layers x Meovv", roles: [pt], type: pp, folder: "Layers - Meovv", totalImages: 4},
       { id: 25, title: "Layers x Micksoft", roles: [pt], type: pp, folder: "Layers - Micksoft", totalImages: 5},
       { id: 26, title: "Layers - The Christmas ICONS Cup", roles: [pt], type: pp, folder: "Layers - The Christmas ICONS Cup", totalImages: 4},
-      { id: 27, title: "Layers - The Christmas ICONS Cup Lifestlye", roles: [pt], type: lp, folder: "Layers - The Christmas ICONS Cup Lifestlye", totalImages: 4}
+      { id: 27, title: "Layers - The Christmas ICONS Cup Lifestlye", roles: [pt], type: lp, folder: "Layers - The Christmas ICONS Cup Lifestlye", totalImages: 4},
+      { id: 28, title: "Wedding T&A", roles: [vg, cl], type: wd, youtubeID: "5UyOJT5pK2Q" },
+      { id: 29, title: "Kung Fu Panda 4", roles: [vg], type: iw, playlistID: "PLS0ME4fNc3k24a3R1wTKxjyQ45JrGnPEd", coverID: "R9EGSIltaN0" }
       ];
 
     let sRole = ["all"], sType = ["all"];
@@ -540,6 +544,19 @@
   const grid = document.getElementById('grid');
   grid.innerHTML = '';
 
+  /* ในฟังก์ชัน renderCards */
+  const isVideo = p.playlistID || (p.youtubeIDs && p.youtubeIDs.length > 0);
+  
+  // ลำดับการเลือกรูปหน้าปก: 
+  // 1. ถ้ามี folder รูปภาพ ให้ใช้รูป 01.jpg 
+  // 2. ถ้ามี coverID ให้ใช้รูปจาก ID นั้น
+  // 3. ถ้ามี youtubeIDs ให้ใช้รูปจากตัวแรกใน Array
+  const cover = p.folder ? `images/${p.folder}/01.jpg` : 
+                (p.coverID ? `https://img.youtube.com/vi/${p.coverID}/maxresdefault.jpg` : 
+                `https://img.youtube.com/vi/${p.youtubeIDs[0]}/maxresdefault.jpg`);
+
+card.className = `card ${isVideo ? 'is-video' : ''}`;
+      
   // 1. กำหนดจำนวนคอลัมน์ตามความกว้างหน้าจอ
   const colCount = window.innerWidth <= 768 ? 2 : 4;
   const colElements = [];
@@ -623,10 +640,41 @@ window.onresize = renderCards;
   const modal = document.getElementById('projectModal'), 
         content = document.getElementById('modalContent');
 
-  // แก้ไข YouTube Parameters (Loop + No branding)
-  if (p.youtubeID) {
-    content.innerHTML = `<div class="video-container"><iframe src="https://www.youtube.com/embed/${p.youtubeID}?autoplay=1&modestbranding=1&rel=0&loop=1&playlist=${p.youtubeID}" allowfullscreen allow="autoplay"></iframe></div>`;
-  } else {
+  content.innerHTML = ''; 
+
+  // 1. ถ้ามี Playlist ให้โชว์ Playlist ก่อน
+  if (p.playlistID) {
+    content.innerHTML += `
+      <div class="video-container" style="margin-bottom: 20px;">
+        <iframe src="https://www.youtube.com/embed/videoseries?list=${p.playlistID}&modestbranding=1&rel=0" 
+                allowfullscreen></iframe>
+      </div>`;
+  }
+
+  // 2. ถ้ามีวิดีโอหลายตัว (youtubeIDs) ก็ให้โชว์ต่อท้ายได้
+  if (p.youtubeIDs && p.youtubeIDs.length > 0) {
+    content.innerHTML += p.youtubeIDs.map(id => `
+      <div class="video-container" style="margin-bottom: 20px;">
+        <iframe src="https://www.youtube.com/embed/${id}?modestbranding=1&rel=0" allowfullscreen></iframe>
+      </div>
+    `).join('');
+  } 
+
+  // 3. ถ้าเป็นรูปภาพ (folder)
+  if (p.folder) {
+    Array.from({length: p.totalImages}, (_, i) => {
+      const imgPath = `images/${p.folder}/${(i+1).toString().padStart(2, '0')}.jpg`;
+      const imgElement = document.createElement('img');
+      imgElement.src = imgPath;
+      imgElement.onload = function() { this.classList.add('loaded'); };
+      content.appendChild(imgElement);
+    });
+  }
+
+  modal.style.display = 'flex';
+  setTimeout(() => modal.classList.add('active'), 10);
+  document.body.style.overflow = 'hidden';
+}
     // --- ⚡️ จุดที่แก้ไข: การจัดการรูปภาพในโฟลเดอร์แบบนุ่มนวล ---
     content.innerHTML = ''; // ล้างเนื้อหาเก่าออกก่อน
 
