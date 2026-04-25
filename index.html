@@ -174,18 +174,27 @@
 }
     
 
-    /* กำหนดสไตล์เริ่มต้นให้รูปภาพทั้งหมดใน Modal */
+        /* แก้ไขขนาดรูปใน Modal ไม่ให้ใหญ่เกินจอ และเพิ่มความนุ่มนวล */
     .modal-content img {
-      opacity: 0; /* เริ่มต้นซ่อนไว้ */
-      transform: translateY(10px); /* ขยับลงนิดนึงรอ */
-      transition: opacity 1s ease, transform 1s ease; /* กำหนดความนุ่มนวลในการปรากฏ (ใช้ 1วินาที เพื่อความนุ่มสุดๆ) */
-      will-change: opacity, transform;
+        width: auto;
+        max-width: 90%;       /* ไม่ให้ชนขอบซ้ายขวา */
+        max-height: 80vh;     /* ⚡️ จำกัดความสูงไม่ให้เกิน 80% ของความสูงจอ */
+        object-fit: contain;  /* ให้รูปคงสัดส่วนเดิม */
+        border-radius: 8px;
+        display: block;
+        margin: 0 auto 20px;
+        
+        /* ระบบ Fade-in เมื่อโหลดเสร็จ */
+        opacity: 0;
+        transform: translateY(10px);
+        transition: opacity 0.8s ease, transform 0.8s ease;
+        will-change: opacity, transform;
     }
-    
-    /* สถานะเมื่อรูปภาพโหลดเสร็จ (เราจะใช้ JS เติมคลาสนี้) */
+
+    /* เมื่อโหลดเสร็จให้จางเข้า */
     .modal-content img.loaded {
-      opacity: 1; /* ปรากฏตัว */
-      transform: translateY(0); /* กลับมาตำแหน่งเดิม */
+        opacity: 1;
+        transform: translateY(0);
     }
     
     /* --- (Optional) เพิ่มแสงวิ่ง Shimmer ระหว่างรอรูป --- */
@@ -196,9 +205,22 @@
       overflow: hidden;
     }
     
-    @keyframes modalShimmer {
-      0% { transform: translateX(-100%); }
-      100% { transform: translateX(100%); }
+    /* เพิ่มแสงวิ่ง Shimmer สำหรับ Card */
+    @keyframes shimmer {
+        0% { left: -150%; }
+        100% { left: 150%; }
+    }
+    
+    /* แก้ไข .card-thumb ให้แสงวิ่งทำงานได้ */
+    .card-thumb::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -150%;
+        width: 150%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+        animation: shimmer 1.5s infinite;
     }
     
     .modal-content img:not(.loaded)::after {
@@ -472,16 +494,19 @@
     const cover = p.youtubeID ? `https://img.youtube.com/vi/${p.youtubeID}/maxresdefault.jpg` : `images/${p.folder}/01.jpg`;
     
     card.innerHTML = `
-      <div class="card-thumb">
-        <img src="${cover}" onerror="this.src='https://img.youtube.com/vi/${p.youtubeID}/hqdefault.jpg'">
-      </div>
-      <div class="card-body">
+    <div class="card-thumb">
+        <img src="${cover}" 
+             loading="lazy" 
+             decoding="async" 
+             onerror="this.src='https://img.youtube.com/vi/${p.youtubeID}/hqdefault.jpg'">
+    </div>
+    <div class="card-body">
         <div class="card-title">${p.title}</div>
         <div>
-          ${p.roles.map(r => `<span class="tag">${r}</span>`).join('')}
-          <span class="tag">${p.type}</span>
+            ${p.roles.map(r => `<span class="tag">${r}</span>`).join('')}
+            <span class="tag">${p.type}</span>
         </div>
-      </div>`;
+    </div>`;
     
     // ใส่การ์ดลงในคอลัมน์ที่วนถึง (เช่น ตัวที่ 5 จะกลับไป Col 1)
     colElements[index % colCount].appendChild(card);
