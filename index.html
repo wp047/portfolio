@@ -173,7 +173,46 @@
   transform: scale(1) translateY(0); 
 }
     
-    .modal-content img { width: 100%; max-width: 800px; border-radius: 4px; display: block; }
+
+    /* กำหนดสไตล์เริ่มต้นให้รูปภาพทั้งหมดใน Modal */
+    .modal-content img {
+      opacity: 0; /* เริ่มต้นซ่อนไว้ */
+      transform: translateY(10px); /* ขยับลงนิดนึงรอ */
+      transition: opacity 1s ease, transform 1s ease; /* กำหนดความนุ่มนวลในการปรากฏ (ใช้ 1วินาที เพื่อความนุ่มสุดๆ) */
+      will-change: opacity, transform;
+    }
+    
+    /* สถานะเมื่อรูปภาพโหลดเสร็จ (เราจะใช้ JS เติมคลาสนี้) */
+    .modal-content img.loaded {
+      opacity: 1; /* ปรากฏตัว */
+      transform: translateY(0); /* กลับมาตำแหน่งเดิม */
+    }
+    
+    /* --- (Optional) เพิ่มแสงวิ่ง Shimmer ระหว่างรอรูป --- */
+    /* เพื่อให้คนดูรู้ว่ากำลังโหลด ไม่ใช่ช่องว่างดำๆ */
+    .modal-content img {
+      background: #1a1a1a; /* สีพื้นหลังระหว่างรอ */
+      position: relative;
+      overflow: hidden;
+    }
+    
+    @keyframes modalShimmer {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+    
+    .modal-content img:not(.loaded)::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        90deg, 
+        transparent, 
+        rgba(255, 255, 255, 0.03), 
+        transparent
+      );
+      animation: modalShimmer 2s infinite;
+    }
     .video-container { position: relative; width: 100%; max-width: 1500px; margin:0 auto; padding-bottom: 56.25%; background: #000; border-radius: 8px; overflow: hidden; }
     .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
 
@@ -479,16 +518,39 @@ window.onresize = renderCards;
     }
 
     function openProject(p) {
-      const modal = document.getElementById('projectModal'), content = document.getElementById('modalContent');
-      content.innerHTML = p.youtubeID ? 
-    `<div class="video-container">
-      <iframe src="https://www.youtube.com/embed/${p.youtubeID}?autoplay=1&modestbranding=1&rel=0&loop=1&playlist=${p.youtubeID}" 
-              allowfullscreen 
-              allow="autoplay">
-      </iframe>
-    </div>` : 
-    Array.from({length: p.totalImages}, (_, i) => `<img src="images/${p.folder}/${(i+1).toString().padStart(2, '0')}.jpg">`).join('');
-  
+  const modal = document.getElementById('projectModal'), 
+        content = document.getElementById('modalContent');
+
+  // แก้ไข YouTube Parameters (Loop + No branding)
+  if (p.youtubeID) {
+    content.innerHTML = `<div class="video-container"><iframe src="https://www.youtube.com/embed/${p.youtubeID}?autoplay=1&modestbranding=1&rel=0&loop=1&playlist=${p.youtubeID}" allowfullscreen allow="autoplay"></iframe></div>`;
+  } else {
+    // --- ⚡️ จุดที่แก้ไข: การจัดการรูปภาพในโฟลเดอร์แบบนุ่มนวล ---
+    content.innerHTML = ''; // ล้างเนื้อหาเก่าออกก่อน
+
+    // วนลูปสร้างรูปภาพทีละใบ
+    Array.from({length: p.totalImages}, (_, i) => {
+      const imgPath = `images/${p.folder}/${(i+1).toString().padStart(2, '0')}.jpg`;
+      const imgElement = document.createElement('img'); // สร้างแท็ก img ในหน่วยความจำ
+      imgElement.src = imgPath;
+      
+      // ⚡️ คำสั่งสำคัญ: เมื่อรูปภาพใบนี้โหลดเสร็จเต็มใบ
+      imgElement.onload = function() {
+        // เติมคลาส .loaded เพื่อให้ CSS Transition ทำงาน
+        this.classList.add('loaded'); 
+      };
+
+      // ในกรณีที่รูปโหลดผิดพลาด
+      imgElement.onerror = function() {
+        this.src = 'images/fallback-placeholder.webp'; // ใช้รูปสำรอง
+        this.classList.add('loaded'); // สั่งให้โชว์รูปสำรองแบบนุ่มนวล
+      };
+
+      content.appendChild(imgElement); // นำรูปไปใส่ใน Modal Content
+    });
+  }
+
+  // จังหวะเปิด Modal (นุ่มนวลตามเดิม)
   modal.style.display = 'flex';
   setTimeout(() => modal.classList.add('active'), 10);
   document.body.style.overflow = 'hidden';
