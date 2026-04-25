@@ -92,9 +92,23 @@
     animation: shimmer 1.5s infinite;
 }
 
-@keyframes shimmer {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(150%); }
+@keyframes cardAppear {
+  from { 
+    opacity: 0; 
+    transform: translateY(10px); /* ลอยขึ้นมานิดเดียวพอครับ */
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
+}
+
+.card {
+  /* ... โค้ดเดิมของคุณ ... */
+  
+  /* ปรับเวลาให้นานขึ้นเล็กน้อย (เช่น 0.8s) เพื่อความนุ่ม */
+  animation: cardAppear 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  opacity: 0; 
 }
     .card.is-video .card-thumb { aspect-ratio: 16/9; } 
     .card-thumb img { width: 100%; height: 100%; object-fit: cover; transition: opacity 0.5s ease; position: relative; z-index: 1; }
