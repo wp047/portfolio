@@ -573,6 +573,31 @@
     let sRole = ["all"], sType = ["all"];
 
     projects.sort(() => Math.random() - 0.5);
+
+    /* --- ฟังก์ชันจัดการ URL (Deep Linking) --- */
+    function updateURL() {
+        const params = new URLSearchParams();
+        if (!sRole.includes('all')) params.set('role', sRole.join(','));
+        if (!sType.includes('all')) params.set('type', sType.join(','));
+        const newHash = params.toString() ? '#' + params.toString() : '';
+        window.history.replaceState(null, null, window.location.pathname + newHash);
+    }
+
+    function syncFiltersFromURL() {
+        const hash = window.location.hash.substring(1);
+        if (!hash) return;
+        const params = new URLSearchParams(hash);
+        const roleParam = params.get('role');
+        const typeParam = params.get('type');
+        if (roleParam) sRole = roleParam.split(',');
+        if (typeParam) sType = typeParam.split(',');
+
+        document.querySelectorAll('.pill').forEach(p => {
+            const { group, value } = p.dataset;
+            const target = group === 'role' ? sRole : sType;
+            p.classList.toggle('active', target.includes(value));
+        });
+    }
     
     function renderCards() {
         const grid = document.getElementById('grid');
@@ -701,6 +726,8 @@
             if (target.length === 0) target.push('all');
         }
         document.querySelectorAll(`.pill[data-group="${group}"]`).forEach(p => p.classList.toggle('active', target.includes(p.dataset.value)));
+        
+        updateURL(); // ⚡️ เพิ่มบรรทัดนี้ (ประมาณบรรทัดที่ 315)
         renderCards();
         if (window.innerWidth <= 768 && document.getElementById('filterSection').classList.contains('show')) toggleFilters();
     }
@@ -725,7 +752,10 @@ window.onresize = () => {
     // ถ้าความกว้างเท่าเดิม (เช่น เลื่อนหน้าจอมือถือแล้วแถบ Address Bar ยุบ) จะไม่ทำอะไรเลย
 };
     document.querySelectorAll('.pill').forEach(p => p.onclick = () => handlePill(p));
-    window.onload = renderCards;
+    window.onload = () => {
+        syncFiltersFromURL(); // ⚡️ เช็ก URL ก่อน (เพิ่มตรงนี้)
+        renderCards();        // ⚡️ แล้วค่อยวาดการ์ด
+    };
 </script>
 </body>
 </html>
