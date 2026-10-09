@@ -611,6 +611,7 @@
     ];
 
     let sRole = ["all"], sType = ["all"];
+    let currentProjectOpen = null; // ⚡️ 1. เพิ่มตัวแปรนี้เพื่อจำว่าเปิดงานไหนอยู่
 
     projects.sort(() => Math.random() - 0.5);
 
@@ -619,6 +620,10 @@
         const params = new URLSearchParams();
         if (!sRole.includes('all')) params.set('role', sRole.join(','));
         if (!sType.includes('all')) params.set('type', sType.join(','));
+        
+        // ⚡️ 2. เพิ่มบรรทัดนี้: ถ้าเปิดโปรเจกต์อยู่ ให้ใส่ id ลงไปใน URL ด้วย
+        if (currentProjectOpen) params.set('project', currentProjectOpen); 
+
         const newHash = params.toString() ? '#' + params.toString() : '';
         window.history.replaceState(null, null, window.location.pathname + newHash);
     }
@@ -629,6 +634,8 @@
         const params = new URLSearchParams(hash);
         const roleParam = params.get('role');
         const typeParam = params.get('type');
+        const projectParam = params.get('project'); // ⚡️ ดึงค่า project ID
+
         if (roleParam) sRole = roleParam.split(',');
         if (typeParam) sType = typeParam.split(',');
 
@@ -637,6 +644,16 @@
             const target = group === 'role' ? sRole : sType;
             p.classList.toggle('active', target.includes(value));
         });
+
+        // ⚡️ 3. เพิ่มโค้ดชุดนี้ก่อนจบฟังก์ชัน: สั่งให้เปิดโปรเจกต์ถ้าระบุใน URL
+        if (projectParam) {
+            // ⚡️ เปลี่ยนมาค้นหาด้วยชื่อโปรเจกต์ โดยแปลงช่องว่างให้เป็นขีดกลาง (-)
+            const targetProject = projects.find(p => p.title.replace(/\s+/g, '-') === projectParam);
+            if (targetProject) {
+                // หน่วงเวลา 0.2 วิ ให้รูปหลังบ้านโหลดเสร็จก่อนค่อยเด้งขึ้นมา
+                setTimeout(() => openProject(targetProject), 200); 
+            }
+        }
     }
     
     function renderCards() {
@@ -729,6 +746,9 @@
 
         modal.style.display = 'flex';
         setTimeout(() => modal.classList.add('active'), 10);
+        // ⚡️ บันทึกชื่อโปรเจกต์ลงใน URL แทนตัวเลข (เอาช่องว่างออกแล้วใส่ - แทน)
+        currentProjectOpen = p.title.replace(/\s+/g, '-'); 
+        updateURL();
         document.body.style.overflow = 'hidden';
     }
 
@@ -752,6 +772,8 @@
             modalBody.style.scrollBehavior = 'smooth';
         }
     }, 500);
+    currentProjectOpen = null; // ⚡️ ล้างค่าเพราะปิดรูปแล้ว
+    updateURL();               // ⚡️ เอาเลขโปรเจกต์ออกจาก URL
     document.body.style.overflow = 'auto';
 }
 
