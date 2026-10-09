@@ -786,8 +786,27 @@ window.onresize = () => {
     }
     // ถ้าความกว้างเท่าเดิม (เช่น เลื่อนหน้าจอมือถือแล้วแถบ Address Bar ยุบ) จะไม่ทำอะไรเลย
 };
+    /* --- ฟังก์ชันนับจำนวนโปรเจกต์ในแต่ละ Filter --- */
+    function updateFilterCounts() {
+        document.querySelectorAll('.pill').forEach(p => {
+            const { group, value } = p.dataset;
+            let count = 0;
+
+            if (value === 'all') {
+                count = projects.length;
+            } else if (group === 'role') {
+                count = projects.filter(proj => proj.roles.includes(value)).length;
+            } else if (group === 'type') {
+                count = projects.filter(proj => proj.type === value).length;
+            }
+
+            const baseText = value === 'all' ? 'All' : value;
+            p.innerText = `${baseText} (${count})`;
+        });
+    }
     document.querySelectorAll('.pill').forEach(p => p.onclick = () => handlePill(p));
     window.onload = () => {
+        updateFilterCounts(); // ⚡️ เพิ่มบรรทัดนี้: ให้นับจำนวนและเติมตัวเลขก่อน
         syncFiltersFromURL(); // ⚡️ เช็ก URL ก่อน (เพิ่มตรงนี้)
         renderCards();        // ⚡️ แล้วค่อยวาดการ์ด
     };
