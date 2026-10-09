@@ -810,6 +810,16 @@ window.onresize = () => {
         });
     }
     document.querySelectorAll('.pill').forEach(p => p.onclick = () => handlePill(p));
+    document.getElementById('projectModal').addEventListener('click', function(e) {
+        // เช็กว่าสิ่งที่คลิกโดน คือรูปภาพ (IMG) หรือ กรอบวิดีโอ (.video-container) หรือไม่
+        const isImage = e.target.tagName === 'IMG';
+        const isVideo = e.target.closest('.video-container');
+
+        // ถ้าไม่ได้คลิกโดนรูป และ ไม่ได้คลิกโดนวิดีโอ ให้ทำการปิด Modal
+        if (!isImage && !isVideo) {
+            closeModal();
+        }
+    });
     window.onload = () => {
         updateFilterCounts(); // ⚡️ เพิ่มบรรทัดนี้: ให้นับจำนวนและเติมตัวเลขก่อน
         syncFiltersFromURL(); // ⚡️ เช็ก URL ก่อน (เพิ่มตรงนี้)
